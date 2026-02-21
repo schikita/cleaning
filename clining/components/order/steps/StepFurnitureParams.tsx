@@ -7,8 +7,6 @@ import { orderStyles as s } from "../styles";
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 const MATERIALS: Array<[FurnitureMaterial, string]> = [
@@ -26,12 +24,7 @@ const STAINS: Array<[StainKey, string]> = [
   ["odor", "Неприятный запах"],
 ];
 
-export default function StepFurnitureParams({
-  draft,
-  updateDraft,
-  next,
-  prev,
-}: Props) {
+export default function StepFurnitureParams({ draft, updateDraft }: Props) {
   const f = draft.furniture;
 
   function setMaterial(material: FurnitureMaterial) {
@@ -82,15 +75,6 @@ export default function StepFurnitureParams({
             </label>
           ))}
         </div>
-      </div>
-
-      <div className={s.actions}>
-        <button type="button" onClick={prev} className={s.btnOutline}>
-          Назад
-        </button>
-        <button type="button" onClick={next} className={s.btnPrimary}>
-          Далее
-        </button>
       </div>
     </div>
   );

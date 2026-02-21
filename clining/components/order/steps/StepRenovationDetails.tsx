@@ -9,18 +9,11 @@ type Draft = typeof DEFAULT_DRAFT;
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 type DustLevel = "low" | "medium" | "high";
 
-export default function StepRenovationDetails({
-  draft,
-  updateDraft,
-  next,
-  prev,
-}: Props) {
+export default function StepRenovationDetails({ draft, updateDraft }: Props) {
   const r = draft.renovation;
 
   function set(key: "areaM2" | "dustLevel", value: string) {
@@ -96,15 +89,6 @@ export default function StepRenovationDetails({
           />
           <span className={s.label}>Удалить следы краски/шпаклёвки</span>
         </label>
-      </div>
-
-      <div className={s.actions}>
-        <button type="button" onClick={prev} className={s.btnOutline}>
-          Назад
-        </button>
-        <button type="button" onClick={next} className={s.btnPrimary}>
-          Далее
-        </button>
       </div>
     </div>
   );

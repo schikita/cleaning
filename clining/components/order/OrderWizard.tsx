@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DEFAULT_DRAFT, getFlowSteps, type Draft } from "./flows";
 import { orderStyles as s } from "./styles";
 
@@ -83,6 +85,10 @@ function useCanNext(draft: Draft, stepKind: string): boolean {
 }
 
 export default function OrderWizard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [mounted, setMounted] = useState(false);
   const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
   const [stepIndex, setStepIndex] = useState(0);
@@ -94,16 +100,37 @@ export default function OrderWizard() {
     if (stored) setDraft((prev) => mergeDraft(prev, stored));
   }, []);
 
+  // Восстановить шаг после возврата с логина
+  useEffect(() => {
+    if (!mounted) return;
+    const returnStep = searchParams.get("step");
+    if (returnStep === "contact") {
+      const steps = getFlowSteps(draft.service);
+      const contactIdx = steps.findIndex((s) => s.kind === "contact");
+      if (contactIdx >= 0) setStepIndex(contactIdx);
+    }
+  }, [mounted, searchParams, draft.service]);
+
+  const steps = useMemo(() => getFlowSteps(draft.service), [draft.service]);
+  const safeIndex = clampIndex(stepIndex, steps.length);
+  const step = steps[safeIndex];
+
+  // Авторизация требуется на шаге контактов
+  useEffect(() => {
+    if (!mounted || status === "loading") return;
+    if (step?.kind === "contact" && status === "unauthenticated") {
+      router.replace(
+        `/login?callbackUrl=${encodeURIComponent("/client/order/create?step=contact")}`
+      );
+    }
+  }, [mounted, status, step?.kind, router]);
+
   useEffect(() => {
     if (!mounted) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
     } catch {}
   }, [draft, mounted]);
-
-  const steps = useMemo(() => getFlowSteps(draft.service), [draft.service]);
-  const safeIndex = clampIndex(stepIndex, steps.length);
-  const step = steps[safeIndex];
 
   useEffect(() => {
     if (safeIndex !== stepIndex) setStepIndex(safeIndex);
@@ -191,14 +218,7 @@ export default function OrderWizard() {
       case "contact":
         return <StepContact {...commonProps} />;
       case "review":
-        return (
-          <StepReview
-            draft={draft}
-            prev={prev}
-            onSubmit={submit}
-            submitting={submitting}
-          />
-        );
+        return <StepReview draft={draft} />;
       default:
         const _exhaustiveCheck: never = step.kind;
         return null;

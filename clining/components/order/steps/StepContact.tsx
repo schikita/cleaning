@@ -9,13 +9,11 @@ type Draft = typeof DEFAULT_DRAFT;
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 type ContactKey = "name" | "phone" | "email";
 
-export default function StepContact({ draft, updateDraft, next, prev }: Props) {
+export default function StepContact({ draft, updateDraft }: Props) {
   const c = draft.contact;
 
   function set(key: ContactKey, value: string) {
@@ -63,23 +61,9 @@ export default function StepContact({ draft, updateDraft, next, prev }: Props) {
         </label>
       </div>
 
-      {!canNext() ? (
+      {!canNext() && (
         <div className={s.error}>Заполните имя и телефон.</div>
-      ) : null}
-
-      <div className={s.actions}>
-        <button type="button" onClick={prev} className={s.btnOutline}>
-          Назад
-        </button>
-        <button
-          type="button"
-          disabled={!canNext()}
-          onClick={next}
-          className={s.btnPrimary}
-        >
-          Далее
-        </button>
-      </div>
+      )}
     </div>
   );
 }

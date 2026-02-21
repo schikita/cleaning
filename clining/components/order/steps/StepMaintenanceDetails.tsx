@@ -9,19 +9,12 @@ type Draft = typeof DEFAULT_DRAFT;
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 type Frequency = "once" | "weekly" | "biweekly" | "monthly";
 type ExtraKey = "ironing" | "dishes";
 
-export default function StepMaintenanceDetails({
-  draft,
-  updateDraft,
-  next,
-  prev,
-}: Props) {
+export default function StepMaintenanceDetails({ draft, updateDraft }: Props) {
   const m = draft.maintenance;
 
   function set(
@@ -111,15 +104,6 @@ export default function StepMaintenanceDetails({
           />
           <span className={s.label}>Мытьё посуды</span>
         </label>
-      </div>
-
-      <div className={s.actions}>
-        <button type="button" onClick={prev} className={s.btnOutline}>
-          Назад
-        </button>
-        <button type="button" onClick={next} className={s.btnPrimary}>
-          Далее
-        </button>
       </div>
     </div>
   );

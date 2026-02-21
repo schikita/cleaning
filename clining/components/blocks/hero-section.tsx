@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 const STATS = [
   { value: "10 000+", label: "Выполненных заказов" },
@@ -11,13 +10,6 @@ const STATS = [
 ] as const;
 
 export function HeroSection() {
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setLoaded(true), 100);
-    return () => clearTimeout(t);
-  }, []);
-
   return (
     <section
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
@@ -45,12 +37,8 @@ export function HeroSection() {
         <div className="max-w-5xl mx-auto text-center">
           {/* Badge */}
           <div
-            className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-white/[0.08] bg-white/[0.04] backdrop-blur-md mb-10"
-            style={{
-              opacity: loaded ? 1 : 0,
-              transform: loaded ? "translateY(0)" : "translateY(16px)",
-              transition: "all 0.6s cubic-bezier(0.16,1,0.3,1) 0.1s",
-            }}
+            className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-white/[0.08] bg-white/[0.04] backdrop-blur-md mb-10 animate-fade-in"
+            style={{ animationDelay: "0.1s", animationFillMode: "both" }}
           >
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -64,14 +52,8 @@ export function HeroSection() {
           {/* Logo / Title */}
           <h1 className="mb-6">
             <span
-              className="block text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tight leading-none"
-              style={{
-                opacity: loaded ? 1 : 0,
-                transform: loaded
-                  ? "translateY(0) scale(1)"
-                  : "translateY(24px) scale(0.95)",
-                transition: "all 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s",
-              }}
+              className="block text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tight leading-none animate-fade-in"
+              style={{ animationDelay: "0.2s", animationFillMode: "both" }}
             >
               <span className="text-[#00d2ff] drop-shadow-[0_0_40px_rgba(0,210,255,0.3)]">
                 Pro
@@ -85,23 +67,15 @@ export function HeroSection() {
 
           {/* Subtitle */}
           <p
-            className="text-xl sm:text-2xl md:text-3xl text-white/70 mb-4 font-light tracking-wide"
-            style={{
-              opacity: loaded ? 1 : 0,
-              transform: loaded ? "translateY(0)" : "translateY(20px)",
-              transition: "all 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s",
-            }}
+            className="text-xl sm:text-2xl md:text-3xl text-white/70 mb-4 font-light tracking-wide animate-fade-in"
+            style={{ animationDelay: "0.4s", animationFillMode: "both" }}
           >
             Маркетплейс клининговых услуг
           </p>
 
           <p
-            className="text-base sm:text-lg text-white/40 mb-12 max-w-2xl mx-auto leading-relaxed"
-            style={{
-              opacity: loaded ? 1 : 0,
-              transform: loaded ? "translateY(0)" : "translateY(20px)",
-              transition: "all 0.7s cubic-bezier(0.16,1,0.3,1) 0.5s",
-            }}
+            className="text-base sm:text-lg text-white/40 mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in"
+            style={{ animationDelay: "0.5s", animationFillMode: "both" }}
           >
             Найдите проверенных специалистов по уборке квартир, офисов
             и&nbsp;коммерческих помещений в&nbsp;Минске и&nbsp;по&nbsp;всей
@@ -110,12 +84,8 @@ export function HeroSection() {
 
           {/* CTA */}
           <div
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20"
-            style={{
-              opacity: loaded ? 1 : 0,
-              transform: loaded ? "translateY(0)" : "translateY(20px)",
-              transition: "all 0.7s cubic-bezier(0.16,1,0.3,1) 0.6s",
-            }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8 animate-fade-in"
+            style={{ animationDelay: "0.6s", animationFillMode: "both" }}
           >
             <Link
               href="/client/order/create"
@@ -164,13 +134,29 @@ export function HeroSection() {
             </Link>
           </div>
 
+          {/* Auth buttons */}
+          <div
+            className="flex flex-wrap justify-center gap-3 animate-fade-in"
+            style={{ animationDelay: "0.7s", animationFillMode: "both" }}
+          >
+            <Link
+              href="/login"
+              className="px-5 py-2.5 rounded-xl text-sm font-medium text-white/80 border border-white/[0.15] hover:bg-white/[0.06] hover:text-white transition-colors"
+            >
+              Войти
+            </Link>
+            <Link
+              href="/signup"
+              className="px-5 py-2.5 rounded-xl text-sm font-medium bg-white/10 border border-white/[0.2] hover:bg-white/[0.15] text-white transition-colors"
+            >
+              Регистрация
+            </Link>
+          </div>
+
           {/* Stats */}
           <div
-            className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-10 max-w-3xl mx-auto"
-            style={{
-              opacity: loaded ? 1 : 0,
-              transition: "opacity 0.8s ease 0.8s",
-            }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-10 max-w-3xl mx-auto mt-12 animate-fade-in"
+            style={{ animationDelay: "0.8s", animationFillMode: "both" }}
           >
             {STATS.map((stat, idx) => (
               <div key={idx} className="text-center group">

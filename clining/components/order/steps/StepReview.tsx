@@ -6,9 +6,6 @@ import { orderStyles as s } from "../styles";
 
 type Props = {
   draft: Draft;
-  prev: () => void;
-  onSubmit?: () => void;
-  submitting?: boolean;
 };
 
 function line(label: string, value: string) {
@@ -20,22 +17,8 @@ function line(label: string, value: string) {
   );
 }
 
-export default function StepReview({
-  draft,
-  prev,
-  onSubmit,
-  submitting,
-}: Props) {
+export default function StepReview({ draft }: Props) {
   const serviceTitle = draft.service ? SERVICE_META[draft.service].title : "—";
-
-  function handleSubmit() {
-    if (submitting) return;
-    if (onSubmit) {
-      onSubmit();
-      return;
-    }
-    alert("Заказ сформирован (заглушка).");
-  }
 
   return (
     <div>
@@ -109,21 +92,6 @@ export default function StepReview({
         {line("Имя", draft.contact.name)}
         {line("Телефон", draft.contact.phone)}
         {line("Email", draft.contact.email)}
-      </div>
-
-      <div className={s.actions}>
-        <button type="button" onClick={prev} className={s.btnOutline}>
-          Назад
-        </button>
-        <button
-          type="button"
-          className={s.btnPrimary}
-          disabled={!!submitting}
-          aria-busy={!!submitting}
-          onClick={handleSubmit}
-        >
-          {submitting ? "Отправка..." : "Создать заказ"}
-        </button>
       </div>
     </div>
   );

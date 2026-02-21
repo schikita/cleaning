@@ -9,8 +9,6 @@ type Draft = typeof DEFAULT_DRAFT;
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 type ExtraKey = "fridgeInside" | "oven" | "hood" | "balcony";
@@ -22,12 +20,7 @@ const EXTRAS: Array<[ExtraKey, string]> = [
   ["balcony", "Уборка балкона/лоджии"],
 ];
 
-export default function StepGeneralExtras({
-  draft,
-  updateDraft,
-  next,
-  prev,
-}: Props) {
+export default function StepGeneralExtras({ draft, updateDraft }: Props) {
   const extras = draft.general.extras;
 
   function toggle(key: ExtraKey) {
@@ -55,15 +48,6 @@ export default function StepGeneralExtras({
             <span className={s.label}>{label}</span>
           </label>
         ))}
-      </div>
-
-      <div className={s.actions}>
-        <button type="button" onClick={prev} className={s.btnOutline}>
-          Назад
-        </button>
-        <button type="button" onClick={next} className={s.btnPrimary}>
-          Далее
-        </button>
       </div>
     </div>
   );

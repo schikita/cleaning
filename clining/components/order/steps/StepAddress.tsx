@@ -9,13 +9,11 @@ type Draft = typeof DEFAULT_DRAFT;
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 type AddressKey = "city" | "street" | "house" | "apartment" | "comment";
 
-export default function StepAddress({ draft, updateDraft, next, prev }: Props) {
+export default function StepAddress({ draft, updateDraft }: Props) {
   const a = draft.address;
 
   function set(key: AddressKey, value: string) {
@@ -79,23 +77,9 @@ export default function StepAddress({ draft, updateDraft, next, prev }: Props) {
         </label>
       </div>
 
-      {!canNext() ? (
+      {!canNext() && (
         <div className={s.error}>Заполните минимум: город, улица, дом.</div>
-      ) : null}
-
-      <div className={s.actions}>
-        <button type="button" onClick={prev} className={s.btnOutline}>
-          Назад
-        </button>
-        <button
-          type="button"
-          disabled={!canNext()}
-          onClick={next}
-          className={s.btnPrimary}
-        >
-          Далее
-        </button>
-      </div>
+      )}
     </div>
   );
 }

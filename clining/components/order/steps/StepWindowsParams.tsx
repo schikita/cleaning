@@ -7,18 +7,11 @@ import { orderStyles as s } from "../styles";
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 type WindowsKey = "windowType" | "count" | "sides" | "hasScreens";
 
-export default function StepWindowsParams({
-  draft,
-  updateDraft,
-  next,
-  prev,
-}: Props) {
+export default function StepWindowsParams({ draft, updateDraft }: Props) {
   const w = draft.windows;
 
   function set(
@@ -82,15 +75,6 @@ export default function StepWindowsParams({
           />
           <span className={s.label}>Есть москитные сетки</span>
         </label>
-      </div>
-
-      <div className={s.actions}>
-        <button type="button" onClick={prev} className={s.btnOutline}>
-          Назад
-        </button>
-        <button type="button" onClick={next} className={s.btnPrimary}>
-          Далее
-        </button>
       </div>
     </div>
   );

@@ -9,8 +9,6 @@ type Draft = typeof DEFAULT_DRAFT;
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 const TIME_SLOTS = [
@@ -35,12 +33,7 @@ function nextSlots(from: string) {
   return TIME_SLOTS.slice(idx + 1);
 }
 
-export default function StepSchedule({
-  draft,
-  updateDraft,
-  next,
-  prev,
-}: Props) {
+export default function StepSchedule({ draft, updateDraft }: Props) {
   const sc = draft.schedule;
 
   function set(key: "date" | "timeFrom" | "timeTo", value: string) {
@@ -106,23 +99,9 @@ export default function StepSchedule({
         </label>
       </div>
 
-      {!canNext() ? (
+      {!canNext() && (
         <div className={s.error}>Выберите дату и интервал времени.</div>
-      ) : null}
-
-      <div className={s.actions}>
-        <button type="button" onClick={prev} className={s.btnOutline}>
-          Назад
-        </button>
-        <button
-          type="button"
-          disabled={!canNext()}
-          onClick={next}
-          className={s.btnPrimary}
-        >
-          Далее
-        </button>
-      </div>
+      )}
     </div>
   );
 }

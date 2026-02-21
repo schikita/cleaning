@@ -22,20 +22,13 @@ type LocalFurnitureItem = {
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 function createItem(kind: FurnitureKind): LocalFurnitureItem {
   return { kind, qty: 1, ...(kind === "sofa" ? { seats: 3 } : {}) };
 }
 
-export default function StepFurnitureItems({
-  draft,
-  updateDraft,
-  next,
-  prev,
-}: Props) {
+export default function StepFurnitureItems({ draft, updateDraft }: Props) {
   const items =
     (draft.furniture.items as unknown as LocalFurnitureItem[]) || [];
 
@@ -147,23 +140,9 @@ export default function StepFurnitureItems({
         ))}
       </div>
 
-      {!canNext() ? (
+      {!canNext() && (
         <div className={s.error}>Добавьте хотя бы один предмет мебели.</div>
-      ) : null}
-
-      <div className={s.actions}>
-        <button type="button" onClick={prev} className={s.btnOutline}>
-          Назад
-        </button>
-        <button
-          type="button"
-          disabled={!canNext()}
-          onClick={next}
-          className={s.btnPrimary}
-        >
-          Далее
-        </button>
-      </div>
+      )}
     </div>
   );
 }

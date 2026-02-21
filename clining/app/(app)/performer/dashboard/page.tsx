@@ -10,8 +10,6 @@ import {
   Clock,
   Zap,
   Gift,
-  Award,
-  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -24,138 +22,135 @@ const skills = [
 
 export default function PerformerDashboard() {
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
       <LiveTicker />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Дашборд исполнителя</h1>
-            <p className="text-gray-500">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+              Дашборд исполнителя
+            </h1>
+            <p className="text-muted-foreground mt-1">
               Управляйте заказами и развивайте профиль
             </p>
           </div>
-          <Link href="/performer/feed">
+          <Link href="/performer/feed" className="shrink-0">
             <Button>Найти заказы</Button>
           </Link>
         </div>
 
+        {/* Stats row */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-800/50">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                <Briefcase className="h-4 w-4" />
+                <span className="text-xs font-medium">Активные</span>
+              </div>
+              <div className="text-2xl font-bold text-foreground">3</div>
+            </CardContent>
+          </Card>
+          <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-800/50">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                <Star className="h-4 w-4 text-amber-500" />
+                <span className="text-xs font-medium">Рейтинг</span>
+              </div>
+              <div className="text-2xl font-bold text-foreground">4.9</div>
+            </CardContent>
+          </Card>
+          <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-800/50">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                <TrendingUp className="h-4 w-4 text-emerald-500" />
+                <span className="text-xs font-medium">Заработано</span>
+              </div>
+              <div className="text-2xl font-bold text-foreground">4 500 Br</div>
+            </CardContent>
+          </Card>
+          <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-800/50">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                <Clock className="h-4 w-4 text-cyan-500" />
+                <span className="text-xs font-medium">Отклик</span>
+              </div>
+              <div className="text-2xl font-bold text-foreground">4 мин</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main content grid */}
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Stats */}
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 text-gray-500 mb-1">
-                    <Briefcase className="h-4 w-4" />
-                    <span className="text-xs">Активные</span>
-                  </div>
-                  <div className="text-2xl font-bold">3</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 text-gray-500 mb-1">
-                    <Star className="h-4 w-4" />
-                    <span className="text-xs">Рейтинг</span>
-                  </div>
-                  <div className="text-2xl font-bold">4.9</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 text-gray-500 mb-1">
-                    <TrendingUp className="h-4 w-4" />
-                    <span className="text-xs">Заработано</span>
-                  </div>
-                  <div className="text-2xl font-bold">4 500 Br</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 text-gray-500 mb-1">
-                    <Clock className="h-4 w-4" />
-                    <span className="text-xs">Отклик</span>
-                  </div>
-                  <div className="text-2xl font-bold">4 мин</div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          {/* Level Card */}
+          <Card className="border-indigo-200 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-14 w-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-amber-500/25">
+                  G
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-foreground">Золото</h3>
+                  <p className="text-sm text-muted-foreground">2 450 / 3 000 XP</p>
+                </div>
+              </div>
+              <Progress value={2450} max={3000} className="mb-3 h-2" />
+              <Badge className="bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 border-0">
+                82% до платины
+              </Badge>
+            </CardContent>
+          </Card>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Level Card */}
-            <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white font-bold text-2xl">
-                    G
+          {/* Skills */}
+          <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-800/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Zap className="h-4 w-4 text-amber-500" />
+                Навыки
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {skills.map((skill) => (
+                <div key={skill.name} className="space-y-1.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-foreground">{skill.name}</span>
+                    <span className="text-muted-foreground">
+                      {skill.level}/{skill.max}
+                    </span>
                   </div>
+                  <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-indigo-500 dark:bg-indigo-400 rounded-full transition-all"
+                      style={{ width: `${(skill.level / skill.max) * 100}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">{skill.effect}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Chests */}
+          <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-800/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Gift className="h-4 w-4 text-purple-500" />
+                Сундуки
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/50">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
-                    <h3 className="font-bold text-lg">Золото</h3>
-                    <p className="text-sm text-gray-500">2 450 / 3 000 XP</p>
+                    <div className="font-medium text-foreground">Ежедневный сундук</div>
+                    <div className="text-sm text-muted-foreground">До 10 кредитов</div>
                   </div>
+                  <Button size="sm" className="shrink-0">Открыть</Button>
                 </div>
-                <Progress value={2450} max={3000} className="mb-2" />
-                <Badge className="bg-yellow-100 text-yellow-800">
-                  82% до платины
-                </Badge>
-              </CardContent>
-            </Card>
-
-            {/* Skills */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Zap className="h-4 w-4 text-yellow-500" />
-                  Навыки
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {skills.map((skill) => (
-                  <div key={skill.name} className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span className="font-medium">{skill.name}</span>
-                      <span className="text-gray-500">
-                        {skill.level}/{skill.max}
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-indigo-600 rounded-full"
-                        style={{ width: `${(skill.level / skill.max) * 100}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500">{skill.effect}</p>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Chests */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Gift className="h-4 w-4 text-purple-500" />
-                  Сундуки
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium">Ежедневный сундук</div>
-                      <div className="text-sm text-gray-500">
-                        До 10 кредитов
-                      </div>
-                    </div>
-                    <Button size="sm">Открыть</Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

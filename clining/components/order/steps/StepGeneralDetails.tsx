@@ -9,16 +9,9 @@ type Draft = typeof DEFAULT_DRAFT;
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
-export default function StepGeneralDetails({
-  draft,
-  updateDraft,
-  next,
-  prev,
-}: Props) {
+export default function StepGeneralDetails({ draft, updateDraft }: Props) {
   const g = draft.general;
 
   function set(
@@ -77,15 +70,6 @@ export default function StepGeneralDetails({
           />
           <span className={s.label}>Есть кухня</span>
         </label>
-      </div>
-
-      <div className={s.actions}>
-        <button type="button" onClick={prev} className={s.btnOutline}>
-          Назад
-        </button>
-        <button type="button" onClick={next} className={s.btnPrimary}>
-          Далее
-        </button>
       </div>
     </div>
   );

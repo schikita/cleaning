@@ -1,6 +1,7 @@
 import React from "react";
 import "./globals.css";
 import { ThemeProvider } from "../components/theme-provider";
+import { SessionProvider } from "../components/client/SessionProvider";
 
 export const metadata = {
   title: {
@@ -25,7 +26,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex-1 flex flex-col">{children}</div>
+          <SessionProvider>
+            <div className="flex-1 flex flex-col">{children}</div>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

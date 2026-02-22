@@ -2,25 +2,19 @@
 
 import React from "react";
 import { DEFAULT_DRAFT } from "../flows";
+import { orderStyles as s } from "../styles";
 
 type Draft = typeof DEFAULT_DRAFT;
 
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 type Frequency = "once" | "weekly" | "biweekly" | "monthly";
 type ExtraKey = "ironing" | "dishes";
 
-export default function StepMaintenanceDetails({
-  draft,
-  updateDraft,
-  next,
-  prev,
-}: Props) {
+export default function StepMaintenanceDetails({ draft, updateDraft }: Props) {
   const m = draft.maintenance;
 
   function set(
@@ -32,27 +26,20 @@ export default function StepMaintenanceDetails({
 
   function toggleExtra(key: ExtraKey) {
     updateDraft({
-      maintenance: {
-        ...m,
-        extras: { ...m.extras, [key]: !m.extras[key] },
-      },
+      maintenance: { ...m, extras: { ...m.extras, [key]: !m.extras[key] } },
     });
   }
 
   return (
     <div>
-      <div className="text-white text-xl font-semibold mb-2">
-        Параметры уборки
-      </div>
-      <div className="text-white/50 mb-6">
-        Уточните параметры и периодичность
-      </div>
+      <div className={s.stepTitle}>Параметры уборки</div>
+      <div className={s.stepSubtitle}>Уточните параметры и периодичность</div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <label className="text-sm text-white/60">
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <label className={s.label}>
           Комнаты
           <input
-            className="mt-1 w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white"
+            className={s.input}
             type="number"
             min={1}
             value={m.rooms}
@@ -61,11 +48,10 @@ export default function StepMaintenanceDetails({
             }
           />
         </label>
-
-        <label className="text-sm text-white/60">
+        <label className={s.label}>
           Санузлы
           <input
-            className="mt-1 w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white"
+            className={s.input}
             type="number"
             min={1}
             value={m.bathrooms}
@@ -74,22 +60,20 @@ export default function StepMaintenanceDetails({
             }
           />
         </label>
-
-        <label className="text-sm text-white/60">
+        <label className={s.label}>
           Площадь (м²)
           <input
-            className="mt-1 w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white"
+            className={s.input}
             value={m.areaM2}
             onChange={(e) => set("areaM2", e.target.value)}
             placeholder="Например: 54"
             inputMode="numeric"
           />
         </label>
-
-        <label className="text-sm text-white/60">
+        <label className={s.label}>
           Периодичность
           <select
-            className="mt-1 w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white"
+            className={s.select}
             value={m.frequency}
             onChange={(e) => set("frequency", e.target.value as Frequency)}
           >
@@ -101,41 +85,25 @@ export default function StepMaintenanceDetails({
         </label>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <label className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <label className={s.toggleRow}>
           <input
             type="checkbox"
             checked={!!m.extras.ironing}
             onChange={() => toggleExtra("ironing")}
+            className={s.checkbox}
           />
-          <span className="text-white/70 text-sm">Глажка</span>
+          <span className={s.label}>Глажка</span>
         </label>
-
-        <label className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+        <label className={s.toggleRow}>
           <input
             type="checkbox"
             checked={!!m.extras.dishes}
             onChange={() => toggleExtra("dishes")}
+            className={s.checkbox}
           />
-          <span className="text-white/70 text-sm">Мытьё посуды</span>
+          <span className={s.label}>Мытьё посуды</span>
         </label>
-      </div>
-
-      <div className="mt-8 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={prev}
-          className="rounded-lg border border-white/10 px-4 py-2 text-white/70 hover:bg-white/[0.03]"
-        >
-          Назад
-        </button>
-        <button
-          type="button"
-          onClick={next}
-          className="rounded-lg bg-[#0b3a7a] px-4 py-2 text-white"
-        >
-          Далее
-        </button>
       </div>
     </div>
   );

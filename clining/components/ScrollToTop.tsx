@@ -14,12 +14,19 @@ export function ScrollToTop({ showAfter = 300, className }: ScrollToTopProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    let rafId: number;
     const toggleVisibility = () => {
-      setIsVisible(window.scrollY > showAfter);
+      rafId = requestAnimationFrame(() => {
+        setIsVisible(window.scrollY > showAfter);
+      });
     };
 
-    window.addEventListener("scroll", toggleVisibility);
-    return () => window.removeEventListener("scroll", toggleVisibility);
+    window.addEventListener("scroll", toggleVisibility, { passive: true });
+    toggleVisibility();
+    return () => {
+      window.removeEventListener("scroll", toggleVisibility);
+      cancelAnimationFrame(rafId);
+    };
   }, [showAfter]);
 
   const scrollToTop = () => {

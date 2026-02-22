@@ -6,18 +6,11 @@ import { Draft, WindowsAccess } from "../flows";
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 type WindowsKey = "floor" | "access";
 
-export default function StepWindowsAccess({
-  draft,
-  updateDraft,
-  next,
-  prev,
-}: Props) {
+export default function StepWindowsAccess({ draft, updateDraft }: Props) {
   const w = draft.windows;
 
   function set(key: WindowsKey, value: string | WindowsAccess) {
@@ -56,23 +49,6 @@ export default function StepWindowsAccess({
             <option value="ladder_needed">Нужна лестница/стремянка</option>
           </select>
         </label>
-      </div>
-
-      <div className="mt-8 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={prev}
-          className="rounded-lg border border-white/10 px-4 py-2 text-white/70 hover:bg-white/[0.03]"
-        >
-          Назад
-        </button>
-        <button
-          type="button"
-          onClick={next}
-          className="rounded-lg bg-[#0b3a7a] px-4 py-2 text-white"
-        >
-          Далее
-        </button>
       </div>
     </div>
   );

@@ -2,14 +2,13 @@
 
 import React from "react";
 import { DEFAULT_DRAFT } from "../flows";
+import { orderStyles as s } from "../styles";
 
 type Draft = typeof DEFAULT_DRAFT;
 
 type Props = {
   draft: Draft;
   updateDraft: (patch: Partial<Draft>) => void;
-  next: () => void;
-  prev: () => void;
 };
 
 const TIME_SLOTS = [
@@ -34,51 +33,44 @@ function nextSlots(from: string) {
   return TIME_SLOTS.slice(idx + 1);
 }
 
-export default function StepSchedule({
-  draft,
-  updateDraft,
-  next,
-  prev,
-}: Props) {
-  const s = draft.schedule;
+export default function StepSchedule({ draft, updateDraft }: Props) {
+  const sc = draft.schedule;
 
   function set(key: "date" | "timeFrom" | "timeTo", value: string) {
-    updateDraft({ schedule: { ...s, [key]: value } });
+    updateDraft({ schedule: { ...sc, [key]: value } });
   }
 
   function canNext() {
-    return Boolean(s.date && s.timeFrom && s.timeTo);
+    return Boolean(sc.date && sc.timeFrom && sc.timeTo);
   }
 
-  const toOptions = s.timeFrom ? nextSlots(s.timeFrom) : TIME_SLOTS;
+  const toOptions = sc.timeFrom ? nextSlots(sc.timeFrom) : TIME_SLOTS;
 
   return (
     <div>
-      <div className="text-white text-xl font-semibold mb-2">Время</div>
-      <div className="text-white/50 mb-6">Выберите дату и удобный интервал</div>
+      <div className={s.stepTitle}>Время</div>
+      <div className={s.stepSubtitle}>Выберите дату и удобный интервал</div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <label className="text-sm text-white/60 sm:col-span-1">
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <label className={`${s.label} sm:col-span-1`}>
           Дата
           <input
-            className="mt-1 w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white"
+            className={s.input}
             type="date"
-            value={s.date}
+            value={sc.date}
             onChange={(e) => set("date", e.target.value)}
           />
         </label>
-
-        <label className="text-sm text-white/60">
+        <label className={s.label}>
           С
           <select
-            className="mt-1 w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white"
-            value={s.timeFrom}
+            className={s.select}
+            value={sc.timeFrom}
             onChange={(e) => {
               const v = e.target.value;
               set("timeFrom", v);
-              if (s.timeTo && nextSlots(v).indexOf(s.timeTo as TimeSlot) < 0) {
+              if (sc.timeTo && nextSlots(v).indexOf(sc.timeTo as TimeSlot) < 0)
                 set("timeTo", "");
-              }
             }}
           >
             <option value="">Выберите</option>
@@ -89,14 +81,13 @@ export default function StepSchedule({
             ))}
           </select>
         </label>
-
-        <label className="text-sm text-white/60">
+        <label className={s.label}>
           До
           <select
-            className="mt-1 w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white"
-            value={s.timeTo}
+            className={s.select}
+            value={sc.timeTo}
             onChange={(e) => set("timeTo", e.target.value)}
-            disabled={!s.timeFrom}
+            disabled={!sc.timeFrom}
           >
             <option value="">Выберите</option>
             {toOptions.map((t) => (
@@ -108,29 +99,9 @@ export default function StepSchedule({
         </label>
       </div>
 
-      {!canNext() ? (
-        <div className="mt-4 text-sm text-red-400">
-          Выберите дату и интервал времени.
-        </div>
-      ) : null}
-
-      <div className="mt-8 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={prev}
-          className="rounded-lg border border-white/10 px-4 py-2 text-white/70 hover:bg-white/[0.03]"
-        >
-          Назад
-        </button>
-        <button
-          type="button"
-          disabled={!canNext()}
-          onClick={next}
-          className="rounded-lg bg-[#0b3a7a] px-4 py-2 text-white disabled:opacity-50"
-        >
-          Далее
-        </button>
-      </div>
+      {!canNext() && (
+        <div className={s.error}>Выберите дату и интервал времени.</div>
+      )}
     </div>
   );
 }

@@ -26,25 +26,27 @@ function ServiceCard({
         "w-full text-left rounded-2xl border transition-colors",
         "px-5 py-4 flex items-center justify-between gap-4",
         selected
-          ? "border-[#00d2ff]/40 bg-[#00d2ff]/[0.05]"
-          : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]",
+          ? "border-primary/40 bg-primary/10"
+          : "border-border bg-card hover:bg-accent",
       ].join(" ")}
     >
       <div className="min-w-0">
-        <div className="text-white font-semibold">{title}</div>
+        <div className="text-foreground font-semibold">{title}</div>
         {description ? (
-          <div className="text-white/40 text-sm mt-1">{description}</div>
+          <div className="text-muted-foreground text-sm mt-1">
+            {description}
+          </div>
         ) : null}
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="text-white/60 text-sm whitespace-nowrap">
+        <div className="text-muted-foreground text-sm whitespace-nowrap">
           {priceFrom}
         </div>
         <div
           className={[
-            "h-5 w-5 rounded-full border",
-            selected ? "border-[#00d2ff] bg-[#00d2ff]/40" : "border-white/20",
+            "h-5 w-5 rounded-full border-2",
+            selected ? "border-primary bg-primary/40" : "border-border",
           ].join(" ")}
         />
       </div>
@@ -67,8 +69,10 @@ export default function StepService({ draft, updateDraft, next }: Props) {
   return (
     <div>
       <div className="text-center mb-8">
-        <div className="text-2xl font-bold text-white">Какая уборка нужна?</div>
-        <div className="text-white/50 mt-2">
+        <div className="text-2xl font-bold text-foreground">
+          Какая уборка нужна?
+        </div>
+        <div className="text-muted-foreground mt-2">
           Выберите тип услуги — мы подберём лучших клинеров
         </div>
       </div>

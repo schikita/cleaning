@@ -4,9 +4,12 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import ThemeToggle from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
+import { useUser } from "@/hooks/useUser";
 
 export function AuthMenu() {
   const { data: session, status } = useSession();
+  const { user } = useUser();
 
   if (status === "loading") {
     return (
@@ -19,12 +22,21 @@ export function AuthMenu() {
 
   if (session?.user) {
     const isAdmin = session.user.role === "admin";
+    const displayName = user?.name || session.user.name || session.user.email || "Пользователь";
+    const avatarSrc = user?.avatar ?? session.user.image ?? undefined;
     return (
       <div className="flex items-center gap-4">
         <ThemeToggle />
-        <span className="text-sm text-muted-foreground hidden sm:inline">
-          {session.user.email}
-        </span>
+        <div className="flex items-center gap-2">
+          <Avatar
+            size="sm"
+            src={avatarSrc}
+            fallback={displayName}
+          />
+          <span className="text-sm font-medium text-foreground max-w-[120px] truncate hidden sm:inline">
+            {displayName}
+          </span>
+        </div>
         {isAdmin && (
           <Link href="/admin">
             <Button variant="outline" size="sm" className="border-amber-500/50 text-amber-600 dark:text-amber-400">
@@ -32,16 +44,6 @@ export function AuthMenu() {
             </Button>
           </Link>
         )}
-        <Link href="/performer/dashboard">
-          <Button variant="ghost" size="sm">
-            Исполнитель
-          </Button>
-        </Link>
-        <Link href="/client/dashboard">
-          <Button variant="ghost" size="sm">
-            Клиент
-          </Button>
-        </Link>
         <Button
           variant="outline"
           size="sm"

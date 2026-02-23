@@ -25,4 +25,5 @@ class Order(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     client_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    performer_id = Column(String(36), ForeignKey("users.id"), nullable=True)
     client = relationship("User", back_populates="orders", foreign_keys=[client_id])

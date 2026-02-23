@@ -2,6 +2,7 @@ import React from "react";
 import "./globals.css";
 import { ThemeProvider } from "../components/theme-provider";
 import { SessionProvider } from "../components/client/SessionProvider";
+import { AvatarProvider } from "../context/AvatarContext";
 
 export const metadata = {
   title: {
@@ -27,7 +28,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider>
-            <div className="flex-1 flex flex-col">{children}</div>
+            <AvatarProvider>
+              <div className="flex-1 flex flex-col">{children}</div>
+            </AvatarProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>

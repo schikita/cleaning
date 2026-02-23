@@ -219,4 +219,13 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  /* Указатель при наведении на кликабельные элементы */
+  button,
+  a,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"],
+  select {
+    cursor: pointer;
+  }
 }

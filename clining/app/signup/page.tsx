@@ -6,16 +6,21 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Briefcase, User } from "lucide-react";
 
 export default function SignupPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/performer/dashboard";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"client" | "performer">("client");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const defaultRedirect = role === "performer" ? "/performer/dashboard" : "/client/dashboard";
+  const callbackUrl = searchParams.get("callbackUrl") ?? defaultRedirect;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,7 +30,7 @@ export default function SignupPage() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, role }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -41,7 +46,14 @@ export default function SignupPage() {
         setError("Регистрация прошла, но вход не удался. Попробуйте войти.");
         return;
       }
-      router.push(callbackUrl);
+      if (avatarFile) {
+        const fd = new FormData();
+        fd.append("avatar", avatarFile);
+        await fetch("/api/user/avatar", { method: "POST", body: fd });
+      }
+      // Всегда редирект по выбранной роли, не по callbackUrl (игнорируем старый callback)
+      const redirect = role === "performer" ? "/performer/dashboard" : "/client/dashboard";
+      router.push(redirect);
       router.refresh();
     } catch {
       setError("Ошибка регистрации");
@@ -58,6 +70,47 @@ export default function SignupPage() {
           <p className="text-muted-foreground mt-1">Создайте аккаунт</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Регистрация как</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setRole("client")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border text-sm font-medium transition-colors ${
+                  role === "client"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                }`}
+              >
+                <User className="w-4 h-4" />
+                Клиент
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("performer")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border text-sm font-medium transition-colors ${
+                  role === "performer"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                }`}
+              >
+                <Briefcase className="w-4 h-4" />
+                Исполнитель
+              </button>
+            </div>
+          </div>
+          <div>
+            <label htmlFor="avatar" className="text-sm font-medium mb-1 block">
+              Аватар (необязательно)
+            </label>
+            <input
+              id="avatar"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)}
+              className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+            />
+          </div>
           <div>
             <label htmlFor="name" className="text-sm font-medium mb-1 block">
               Имя

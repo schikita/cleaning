@@ -16,6 +16,8 @@ def list_orders(
     limit: int = 100,
     status: str | None = Query(None),
     city: str | None = Query(None),
+    client_id: str | None = Query(None),
+    performer_id: str | None = Query(None),
     db: Session = Depends(get_db),
 ):
     """List orders with optional filters."""
@@ -24,7 +26,11 @@ def list_orders(
         q = q.filter(Order.status == status)
     if city:
         q = q.filter(Order.city.ilike(f"%{city}%"))
-    orders = q.offset(skip).limit(limit).all()
+    if client_id:
+        q = q.filter(Order.client_id == client_id)
+    if performer_id:
+        q = q.filter(Order.performer_id == performer_id)
+    orders = q.order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
     return orders
 
 

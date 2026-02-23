@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useUser } from "@/hooks/useUser";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { AvatarUpload } from "@/components/auth/AvatarUpload";
 import {
   Star,
   MapPin,
@@ -12,59 +14,93 @@ import {
   Award,
   CheckCircle,
   Edit,
-  Camera,
 } from "lucide-react";
 
-const profile = {
-  name: "Александр Петров",
-  rating: 4.9,
-  reviewsCount: 87,
-  completedOrders: 124,
-  memberSince: "2022",
-  level: "Золото",
-  city: "Минск",
-  phone: "+375 29 123-45-67",
-  email: "alex@example.com",
-  bio: "Профессиональный клинер с 5-летним опытом. Специализируюсь на генеральной уборке, уборке после ремонта и химчистке мебели. Использую экологически чистые средства.",
-  services: [
-    "Генеральная уборка",
-    "Уборка после ремонта",
-    "Химчистка мебели",
-    "Мойка окон",
-  ],
-  badges: [
-    { label: "Проверен", color: "bg-emerald-100 text-emerald-800" },
-    { label: "Топ исполнитель", color: "bg-yellow-100 text-yellow-800" },
-    { label: "Быстрый отклик", color: "bg-blue-100 text-blue-800" },
-  ],
-  reviews: [
-    {
-      id: "1",
-      author: "Анна М.",
-      rating: 5,
-      text: "Отличная работа! Квартира сверкает. Очень аккуратный и пунктуальный.",
-      date: "15 января 2025",
-    },
-    {
-      id: "2",
-      author: "Сергей К.",
-      rating: 5,
-      text: "Уборка после ремонта выполнена на высшем уровне. Рекомендую!",
-      date: "3 января 2025",
-    },
-    {
-      id: "3",
-      author: "Мария В.",
-      rating: 4,
-      text: "Хорошая работа, всё чисто. Приду снова.",
-      date: "28 декабря 2024",
-    },
-  ],
+const XP_PER_ORDER = 100;
+const LEVELS = [
+  { name: "Бронза", xpMin: 0, xpMax: 500 },
+  { name: "Серебро", xpMin: 500, xpMax: 1500 },
+  { name: "Золото", xpMin: 1500, xpMax: 3000 },
+  { name: "Платина", xpMin: 3000, xpMax: Infinity },
+];
+
+function getLevelName(xp: number): string {
+  const level = LEVELS.find((l) => xp >= l.xpMin && xp < l.xpMax);
+  return level?.name ?? "Бронза";
+}
+
+const BADGE_COLORS: Record<string, string> = {
+  "Проверен": "bg-emerald-100 text-emerald-800",
+  "Топ исполнитель": "bg-yellow-100 text-yellow-800",
+  "Быстрый отклик": "bg-blue-100 text-blue-800",
 };
 
+function getBadgeColor(label: string): string {
+  return BADGE_COLORS[label] ?? "bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200";
+}
+
+function formatDate(s: string | null | undefined): string {
+  if (!s) return "";
+  const d = new Date(s);
+  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+}
+
+interface ReviewItem {
+  id: string;
+  author?: string;
+  rating: number;
+  text?: string | null;
+  created_at?: string | null;
+}
+
 export default function PerformerProfile() {
+  const { data: session } = useSession();
+  const { user, refresh } = useUser();
   const [editing, setEditing] = useState(false);
-  const [bio, setBio] = useState(profile.bio);
+  const [bio, setBio] = useState("");
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+
+  const completedOrders = user?.completed_orders ?? 0;
+  const xp = completedOrders * XP_PER_ORDER;
+  const levelName = getLevelName(xp);
+  const memberSince = user?.created_at ? new Date(user.created_at).getFullYear().toString() : "—";
+
+  useEffect(() => {
+    setBio(user?.bio ?? "");
+  }, [user?.bio]);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setReviewsLoading(false);
+      return;
+    }
+    fetch(`/api/reviews?performer_id=${encodeURIComponent(user.id)}&limit=20`)
+      .then((res) => res.json())
+      .then((data: ReviewItem[]) => setReviews(Array.isArray(data) ? data : []))
+      .catch(() => setReviews([]))
+      .finally(() => setReviewsLoading(false));
+  }, [user?.id]);
+
+  const displayName = user?.name || session?.user?.name || "";
+  const displayEmail = user?.email || session?.user?.email || "";
+  const badges = user?.badges ?? [];
+
+  const handleSaveBio = async () => {
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bio }),
+      });
+      if (res.ok) {
+        await refresh();
+        setEditing(false);
+      }
+    } catch {
+      setEditing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4">
@@ -74,13 +110,12 @@ export default function PerformerProfile() {
           <CardContent className="p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row gap-6 items-start">
               {/* Avatar */}
-              <div className="relative flex-shrink-0">
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-3xl">
-                  {profile.name[0]}
-                </div>
-                <button className="absolute -bottom-2 -right-2 w-8 h-8 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full flex items-center justify-center shadow-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors">
-                  <Camera className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-                </button>
+              <div className="shrink-0">
+                <AvatarUpload
+                  src={user?.avatar ?? session?.user?.image}
+                  fallback={displayName}
+                  size="lg"
+                />
               </div>
 
               {/* Info */}
@@ -88,19 +123,21 @@ export default function PerformerProfile() {
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-                      {profile.name}
+                      {displayName}
                     </h1>
                     <div className="flex items-center gap-2 mt-1">
-                      <MapPin className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-500 dark:text-slate-400 text-sm">
-                        {profile.city}
-                      </span>
-                      <span className="text-slate-300 dark:text-slate-600">
-                        •
-                      </span>
+                      {user?.city && (
+                        <>
+                          <MapPin className="w-4 h-4 text-slate-400" />
+                          <span className="text-slate-500 dark:text-slate-400 text-sm">
+                            {user.city}
+                          </span>
+                          <span className="text-slate-300 dark:text-slate-600">•</span>
+                        </>
+                      )}
                       <Award className="w-4 h-4 text-yellow-500" />
                       <span className="text-slate-500 dark:text-slate-400 text-sm">
-                        {profile.level}
+                        {levelName}
                       </span>
                     </div>
                   </div>
@@ -116,16 +153,18 @@ export default function PerformerProfile() {
                 </div>
 
                 {/* Badges */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {profile.badges.map((badge) => (
-                    <span
-                      key={badge.label}
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium ${badge.color}`}
-                    >
-                      {badge.label}
-                    </span>
-                  ))}
-                </div>
+                {badges.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {badges.map((label) => (
+                      <span
+                        key={label}
+                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getBadgeColor(label)}`}
+                      >
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4">
@@ -133,16 +172,16 @@ export default function PerformerProfile() {
                     <div className="flex items-center justify-center gap-1 mb-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                       <span className="font-bold text-slate-900 dark:text-white">
-                        {profile.rating}
+                        {(user?.rating ?? 0).toFixed(1)}
                       </span>
                     </div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">
-                      {profile.reviewsCount} отзывов
+                      {reviews.length} отзывов
                     </div>
                   </div>
                   <div className="text-center">
                     <div className="font-bold text-slate-900 dark:text-white mb-1">
-                      {profile.completedOrders}
+                      {completedOrders}
                     </div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">
                       Заказов
@@ -150,7 +189,7 @@ export default function PerformerProfile() {
                   </div>
                   <div className="text-center">
                     <div className="font-bold text-slate-900 dark:text-white mb-1">
-                      {profile.memberSince}
+                      {memberSince}
                     </div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">
                       Год вступления
@@ -173,13 +212,15 @@ export default function PerformerProfile() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
-                  <Phone className="w-4 h-4 text-slate-400" />
-                  {profile.phone}
-                </div>
+                {user?.phone && (
+                  <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                    <Phone className="w-4 h-4 text-slate-400" />
+                    {user.phone}
+                  </div>
+                )}
                 <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
                   <Mail className="w-4 h-4 text-slate-400" />
-                  {profile.email}
+                  {displayEmail}
                 </div>
               </CardContent>
             </Card>
@@ -192,15 +233,21 @@ export default function PerformerProfile() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {profile.services.map((service) => (
-                  <div
-                    key={service}
-                    className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300"
-                  >
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                    {service}
+                {(user?.services ?? []).length > 0 ? (
+                  (user?.services ?? []).map((service) => (
+                    <div
+                      key={service}
+                      className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300"
+                    >
+                      <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+                      {service}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-sm text-slate-500 dark:text-slate-400">
+                    Услуги не указаны
                   </div>
-                ))}
+                )}
               </CardContent>
             </Card>
           </div>
@@ -227,7 +274,7 @@ export default function PerformerProfile() {
                       <Button
                         size="sm"
                         className="bg-cyan-600 hover:bg-cyan-700"
-                        onClick={() => setEditing(false)}
+                        onClick={handleSaveBio}
                       >
                         Сохранить
                       </Button>
@@ -235,7 +282,7 @@ export default function PerformerProfile() {
                         size="sm"
                         variant="outline"
                         onClick={() => {
-                          setBio(profile.bio);
+                          setBio(user?.bio ?? "");
                           setEditing(false);
                         }}
                         className="dark:border-slate-600 dark:text-white"
@@ -246,7 +293,7 @@ export default function PerformerProfile() {
                   </div>
                 ) : (
                   <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-                    {bio}
+                    {bio || "Расскажите о себе в разделе «Редактировать»."}
                   </p>
                 )}
               </CardContent>
@@ -260,30 +307,42 @@ export default function PerformerProfile() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {profile.reviews.map((review) => (
-                  <div
-                    key={review.id}
-                    className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-medium text-slate-900 dark:text-white text-sm">
-                        {review.author}
+                {reviewsLoading ? (
+                  <div className="text-sm text-slate-500 dark:text-slate-400">
+                    Загрузка отзывов...
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <div className="text-sm text-slate-500 dark:text-slate-400">
+                    Пока нет отзывов
+                  </div>
+                ) : (
+                  reviews.map((review) => (
+                    <div
+                      key={review.id}
+                      className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-medium text-slate-900 dark:text-white text-sm">
+                          {review.author ?? "Аноним"}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-3.5 h-3.5 ${i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-slate-300"}`}
+                            />
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3.5 h-3.5 ${i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-slate-300"}`}
-                          />
-                        ))}
+                      <p className="text-slate-600 dark:text-slate-300 text-sm mb-2">
+                        {review.text ?? ""}
+                      </p>
+                      <div className="text-xs text-slate-400">
+                        {formatDate(review.created_at)}
                       </div>
                     </div>
-                    <p className="text-slate-600 dark:text-slate-300 text-sm mb-2">
-                      {review.text}
-                    </p>
-                    <div className="text-xs text-slate-400">{review.date}</div>
-                  </div>
-                ))}
+                  ))
+                )}
               </CardContent>
             </Card>
           </div>

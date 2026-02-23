@@ -31,6 +31,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const parsed = signInSchema.safeParse(credentials);
         if (!parsed.success) return null;
         const { email, password } = parsed.data;
+
+        // Проверка через backend API (если задан BACKEND_URL)
+        const backendUrl = process.env.BACKEND_URL;
+        if (backendUrl) {
+          try {
+            const res = await fetch(`${backendUrl}/api/v1/auth/login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+            });
+            if (!res.ok) return null;
+            const user = await res.json();
+            return { id: user.id, email: user.email, name: user.name, role: user.role, image: user.avatar };
+          } catch {
+            return null;
+          }
+        }
+
+        // Fallback: локальный auth-users
         const user = getUserByEmail(email);
         if (!user || !(await verifyPassword(password, user.passwordHash)))
           return null;
@@ -39,6 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           name: user.name,
           role: user.role,
+          image: undefined,
         };
       },
     }),
@@ -52,6 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = (user as { role?: string }).role;
+        token.picture = (user as { image?: string }).image ?? null;
       }
       return token;
     },
@@ -59,6 +80,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = (token.role as string) || "client";
+        session.user.image = token.picture as string | null;
       }
       return session;
     },

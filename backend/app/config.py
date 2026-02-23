@@ -25,6 +25,10 @@ class Settings:
     # Redis
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
+    # Avatar storage
+    AVATARS_DIR: str = os.getenv("AVATARS_DIR", "/app/data/avatars")
+    API_BASE_URL: str = os.getenv("API_BASE_URL", "http://localhost:8000")
+
     # CORS
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",

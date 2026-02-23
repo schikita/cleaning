@@ -11,6 +11,12 @@ export default function AdminLayout({
       <aside className="w-56 border-r border-zinc-800 p-4">
         <nav className="space-y-1">
           <Link
+            href="/admin"
+            className="block px-3 py-2 rounded-lg text-zinc-300 hover:bg-zinc-800 hover:text-white font-medium"
+          >
+            Админ-панель
+          </Link>
+          <Link
             href="/admin/orders"
             className="block px-3 py-2 rounded-lg text-zinc-300 hover:bg-zinc-800 hover:text-white"
           >

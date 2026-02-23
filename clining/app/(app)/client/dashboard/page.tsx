@@ -1,4 +1,7 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
+import { auth } from "@/auth";
+import { fetchClientOrders } from "@/lib/backend-api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,34 +12,38 @@ import {
   RotateCcw,
   Star,
   TrendingUp,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const stats = {
-  totalOrders: 12,
-  activeOrders: 2,
-  completedOrders: 10,
-  totalSpent: 45000,
+const statusLabel: Record<string, string> = {
+  open: "Поиск",
+  in_progress: "В работе",
+  completed: "Выполнено",
+  cancelled: "Отменён",
 };
 
-const activeOrders = [
-  {
-    id: "1",
-    title: "Уборка квартиры перед новым годом",
-    status: "active",
-    budget: 4500,
-    responses: 3,
-  },
-  {
-    id: "2",
-    title: "Ремонт крана на кухне",
-    status: "in_progress",
-    budget: 1200,
-    performer: "Алексей С.",
-  },
-];
+export default async function ClientDashboard() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login?callbackUrl=/client/dashboard");
 
-export default function ClientDashboard() {
+  const orders = await fetchClientOrders(session.user.id);
+  const totalOrders = orders.length;
+  const activeOrders = orders.filter((o) =>
+    ["open", "in_progress"].includes(o.status)
+  );
+  const completedOrders = orders.filter((o) => o.status === "completed");
+  const totalSpent = completedOrders.reduce(
+    (sum, o) => sum + (o.budget ?? 0),
+    0
+  );
+
+  const stats = {
+    totalOrders,
+    activeOrdersCount: activeOrders.length,
+    completedOrders: completedOrders.length,
+    totalSpent,
+  };
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 transition-colors duration-300">
       <div className="container mx-auto">
@@ -66,7 +73,7 @@ export default function ClientDashboard() {
               label: "Всего заказов",
               value: stats.totalOrders,
             },
-            { icon: Clock, label: "Активных", value: stats.activeOrders },
+            { icon: Clock, label: "Активных", value: stats.activeOrdersCount },
             {
               icon: CheckCircle,
               label: "Выполнено",
@@ -106,47 +113,46 @@ export default function ClientDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {activeOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-slate-900 dark:text-white">
-                        {order.title}
-                      </h3>
-                      <Badge
-                        variant={
-                          order.status === "in_progress"
-                            ? "default"
-                            : "secondary"
-                        }
-                        className={cn(
-                          order.status === "in_progress"
-                            ? "bg-cyan-600 dark:bg-cyan-600"
-                            : "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
-                        )}
-                      >
-                        {order.status === "in_progress" ? "В работе" : "Поиск"}
-                      </Badge>
-                    </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400 mb-2">
-                      Бюджет: {order.budget.toLocaleString()} Br
-                    </div>
-                    {order.performer ? (
-                      <div className="text-sm text-slate-600 dark:text-slate-300">
-                        Исполнитель:{" "}
-                        <span className="font-medium text-slate-900 dark:text-white">
-                          {order.performer}
-                        </span>
+                {activeOrders.length === 0 ? (
+                  <p className="text-sm text-slate-500 dark:text-slate-400 py-4">
+                    Нет активных заказов
+                  </p>
+                ) : (
+                  activeOrders.map((order) => (
+                    <div
+                      key={order.id}
+                      className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <Link href={`/order/${order.id}`}>
+                          <h3 className="font-semibold text-slate-900 dark:text-white hover:underline">
+                            {order.title}
+                          </h3>
+                        </Link>
+                        <Badge
+                          variant={
+                            order.status === "in_progress"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className={cn(
+                            order.status === "in_progress"
+                              ? "bg-cyan-600 dark:bg-cyan-600"
+                              : "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
+                          )}
+                        >
+                          {statusLabel[order.status] ?? order.status}
+                        </Badge>
                       </div>
-                    ) : (
                       <div className="text-sm text-slate-500 dark:text-slate-400">
-                        {order.responses} отклика
+                        Бюджет:{" "}
+                        {order.budget != null
+                          ? `${order.budget.toLocaleString()} Br`
+                          : "По договорённости"}
                       </div>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  ))
+                )}
               </CardContent>
             </Card>
           </div>
@@ -160,6 +166,15 @@ export default function ClientDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
+                <Link href="/client/profile">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start border-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Профиль
+                  </Button>
+                </Link>
                 <Link href="/client/order/create">
                   <Button
                     variant="outline"

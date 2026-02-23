@@ -9,6 +9,7 @@ export default auth((req) => {
     "/performer/dashboard",
     "/performer/profile",
     "/client/dashboard",
+    "/client/profile",
   ];
 
   const isProtected = protectedPaths.some((p) =>
@@ -22,7 +23,9 @@ export default auth((req) => {
   }
 
   if ((pathname === "/login" || pathname === "/signup") && isLoggedIn) {
-    return NextResponse.redirect(new URL("/performer/dashboard", req.url));
+    const role = req.auth?.user?.role;
+    const dashboard = role === "performer" ? "/performer/dashboard" : "/client/dashboard";
+    return NextResponse.redirect(new URL(dashboard, req.url));
   }
 
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
@@ -45,5 +48,6 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|fonts|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  // Исключаем /admin/login — страница обрабатывает сама (редирект админа в page)
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|fonts|admin/login|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };

@@ -1,3 +1,6 @@
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { fetchUser, fetchPerformerOrders } from "@/lib/backend-api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,14 +16,53 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const skills = [
-  { name: "Скорость", level: 7, max: 10, effect: "+35% к видимости" },
-  { name: "Коммуникация", level: 5, max: 10, effect: "Цветная карточка" },
-  { name: "Экономия", level: 3, max: 10, effect: "15% шанс" },
-  { name: "Качество", level: 6, max: 10, effect: "+0.2 к рейтингу" },
+const XP_PER_ORDER = 100;
+const LEVELS = [
+  { name: "Бронза", letter: "Б", xpMin: 0, xpMax: 500, color: "from-amber-700 to-amber-900" },
+  { name: "Серебро", letter: "С", xpMin: 500, xpMax: 1500, color: "from-slate-400 to-slate-600" },
+  { name: "Золото", letter: "З", xpMin: 1500, xpMax: 3000, color: "from-amber-400 to-amber-600" },
+  { name: "Платина", letter: "П", xpMin: 3000, xpMax: Infinity, color: "from-cyan-400 to-cyan-600" },
 ];
 
-export default function PerformerDashboard() {
+function getLevelInfo(xp: number) {
+  const current = LEVELS.find((l) => xp >= l.xpMin && xp < l.xpMax) ?? LEVELS[0];
+  const next = LEVELS[LEVELS.indexOf(current) + 1];
+  const xpInLevel = xp - current.xpMin;
+  const xpNeeded = next ? next.xpMin - current.xpMin : current.xpMax - current.xpMin;
+  const pct = next ? Math.round((xpInLevel / xpNeeded) * 100) : 100;
+  const nextLevel = next ? `${pct}% до ${next.name.toLowerCase()}` : "макс. уровень";
+  return { current, next, xpInLevel, xpNeeded, pct: Math.min(pct, 100), nextLevel };
+}
+
+function getSkills(completedOrders: number, rating: number) {
+  return [
+    { name: "Скорость", level: Math.min(10, Math.floor(completedOrders / 2)), max: 10, effect: "+35% к видимости" },
+    { name: "Коммуникация", level: Math.min(10, Math.floor(completedOrders / 3) + Math.min(2, Math.floor(rating))), max: 10, effect: "Цветная карточка" },
+    { name: "Экономия", level: Math.min(10, Math.floor(completedOrders / 4)), max: 10, effect: "15% шанс" },
+    { name: "Качество", level: Math.min(10, rating > 0 ? Math.round(rating * 2) : 0), max: 10, effect: "+0.2 к рейтингу" },
+  ];
+}
+
+export default async function PerformerDashboard() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login?callbackUrl=/performer/dashboard");
+
+  const [user, performerOrders] = await Promise.all([
+    fetchUser(session.user.id),
+    fetchPerformerOrders(session.user.id),
+  ]);
+
+  const activeCount = performerOrders.filter((o) => o.status === "in_progress").length;
+  const completedPerformer = performerOrders.filter((o) => o.status === "completed");
+  const earned = completedPerformer.reduce((sum, o) => sum + (o.budget ?? 0), 0);
+  const rating = user?.rating ?? 0;
+  const completedOrders = user?.completed_orders ?? 0;
+
+  const performerCompleted = completedPerformer.length;
+  const xp = performerCompleted * XP_PER_ORDER;
+  const levelInfo = getLevelInfo(xp);
+  const skills = getSkills(performerCompleted, rating);
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
       <LiveTicker />
@@ -36,9 +78,14 @@ export default function PerformerDashboard() {
               Управляйте заказами и развивайте профиль
             </p>
           </div>
-          <Link href="/performer/feed" className="shrink-0">
-            <Button>Найти заказы</Button>
-          </Link>
+          <div className="flex gap-2 shrink-0">
+            <Link href="/performer/profile">
+              <Button variant="outline">Профиль</Button>
+            </Link>
+            <Link href="/performer/feed">
+              <Button>Найти заказы</Button>
+            </Link>
+          </div>
         </div>
 
         {/* Stats row */}
@@ -49,7 +96,7 @@ export default function PerformerDashboard() {
                 <Briefcase className="h-4 w-4" />
                 <span className="text-xs font-medium">Активные</span>
               </div>
-              <div className="text-2xl font-bold text-foreground">3</div>
+              <div className="text-2xl font-bold text-foreground">{activeCount}</div>
             </CardContent>
           </Card>
           <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-800/50">
@@ -58,7 +105,9 @@ export default function PerformerDashboard() {
                 <Star className="h-4 w-4 text-amber-500" />
                 <span className="text-xs font-medium">Рейтинг</span>
               </div>
-              <div className="text-2xl font-bold text-foreground">4.9</div>
+              <div className="text-2xl font-bold text-foreground">
+                {rating > 0 ? rating.toFixed(1) : "—"}
+              </div>
             </CardContent>
           </Card>
           <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-800/50">
@@ -67,7 +116,9 @@ export default function PerformerDashboard() {
                 <TrendingUp className="h-4 w-4 text-emerald-500" />
                 <span className="text-xs font-medium">Заработано</span>
               </div>
-              <div className="text-2xl font-bold text-foreground">4 500 Br</div>
+              <div className="text-2xl font-bold text-foreground">
+                {earned > 0 ? `${earned.toLocaleString()} Br` : "0 Br"}
+              </div>
             </CardContent>
           </Card>
           <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-800/50">
@@ -76,7 +127,7 @@ export default function PerformerDashboard() {
                 <Clock className="h-4 w-4 text-cyan-500" />
                 <span className="text-xs font-medium">Отклик</span>
               </div>
-              <div className="text-2xl font-bold text-foreground">4 мин</div>
+              <div className="text-2xl font-bold text-foreground">—</div>
             </CardContent>
           </Card>
         </div>
@@ -87,17 +138,26 @@ export default function PerformerDashboard() {
           <Card className="border-indigo-200 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50">
             <CardContent className="p-6">
               <div className="flex items-center gap-4 mb-4">
-                <div className="h-14 w-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-amber-500/25">
-                  G
+                <div className={`h-14 w-14 rounded-full bg-gradient-to-br ${levelInfo.current.color} flex items-center justify-center text-white font-bold text-xl shadow-lg`}>
+                  {levelInfo.current.letter}
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-foreground">Золото</h3>
-                  <p className="text-sm text-muted-foreground">2 450 / 3 000 XP</p>
+                  <h3 className="font-bold text-lg text-foreground">{levelInfo.current.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {xp.toLocaleString()} XP
+                    {levelInfo.next && (
+                      <span> / {levelInfo.next.xpMin.toLocaleString()} до след. ур.</span>
+                    )}
+                  </p>
                 </div>
               </div>
-              <Progress value={2450} max={3000} className="mb-3 h-2" />
+              <Progress
+                value={levelInfo.next ? levelInfo.pct : 100}
+                max={100}
+                className="mb-3 h-2"
+              />
               <Badge className="bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 border-0">
-                82% до платины
+                {levelInfo.nextLevel}
               </Badge>
             </CardContent>
           </Card>
@@ -144,9 +204,11 @@ export default function PerformerDashboard() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
                     <div className="font-medium text-foreground">Ежедневный сундук</div>
-                    <div className="text-sm text-muted-foreground">До 10 кредитов</div>
+                    <div className="text-sm text-muted-foreground">
+                      Выполнено заказов: {performerCompleted} — бонусы в разработке
+                    </div>
                   </div>
-                  <Button size="sm" className="shrink-0">Открыть</Button>
+                  <Button size="sm" className="shrink-0" disabled>Скоро</Button>
                 </div>
               </div>
             </CardContent>

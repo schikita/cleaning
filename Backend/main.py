@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import redis
 from config import ALLOWED_ORIGINS, REDIS_URL
 from database import engine, Base
-from routers import auth, orders, performers, clients, reviews, gamification
+from routers import auth, orders, performers, clients, reviews, gamification, admin
 
 
 @asynccontextmanager
@@ -51,6 +51,7 @@ app.include_router(performers.router)
 app.include_router(clients.router)
 app.include_router(reviews.router)
 app.include_router(gamification.router)
+app.include_router(admin.router)
 
 
 @app.get("/")
@@ -60,4 +61,4 @@ def root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

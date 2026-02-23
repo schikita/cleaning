@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
-import { getUserByEmail, verifyPassword } from "@/lib/auth-users";
 
 const authSecret =
   process.env.AUTH_SECRET ||
@@ -9,49 +8,52 @@ const authSecret =
     ? "dev-secret-change-in-production-min-32-chars"
     : undefined);
 
-const signInSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Введите email")
-    .email("Некорректный email"),
-  password: z
-    .string()
-    .min(1, "Введите пароль")
-    .min(6, "Пароль минимум 6 символов"),
+/**
+ * The client-side login page calls the FastAPI backend directly,
+ * then passes the resulting token + user data to NextAuth via signIn().
+ * This avoids the Node.js → Python networking issue on Windows.
+ */
+const credentialsSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  name: z.string(),
+  role: z.string(),
+  accessToken: z.string(),
 });
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Пароль", type: "password" },
+        id: { type: "text" },
+        email: { type: "text" },
+        name: { type: "text" },
+        role: { type: "text" },
+        accessToken: { type: "text" },
       },
       async authorize(credentials) {
-        const parsed = signInSchema.safeParse(credentials);
+        const parsed = credentialsSchema.safeParse(credentials);
         if (!parsed.success) return null;
-        const { email, password } = parsed.data;
-        const user = getUserByEmail(email);
-        if (!user || !(await verifyPassword(password, user.passwordHash)))
-          return null;
+
         return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
+          id: parsed.data.id,
+          email: parsed.data.email,
+          name: parsed.data.name,
+          role: parsed.data.role,
+          accessToken: parsed.data.accessToken,
         };
       },
     }),
   ],
   callbacks: {
     authorized() {
-      // Разрешаем все — редиректы обрабатывает middleware
       return true;
     },
     jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as { role?: string }).role;
+        token.role = (user as any).role;
+        token.accessToken = (user as any).accessToken;
       }
       return token;
     },
@@ -59,10 +61,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = (token.role as string) || "client";
+        (session as any).accessToken = token.accessToken;
       }
       return session;
     },
   },
+  session: { strategy: "jwt" },
   secret: authSecret,
   trustHost: true,
   pages: {

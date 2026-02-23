@@ -22,6 +22,10 @@ export default auth((req) => {
   }
 
   if ((pathname === "/login" || pathname === "/signup") && isLoggedIn) {
+    const role = req.auth?.user?.role;
+    if (role === "admin") {
+      return NextResponse.redirect(new URL("/admin/orders", req.url));
+    }
     return NextResponse.redirect(new URL("/performer/dashboard", req.url));
   }
 

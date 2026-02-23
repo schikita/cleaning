@@ -13,6 +13,9 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 @router.post("/register", response_model=schemas.UserOut)
 def register(body: schemas.UserRegister, db: Session = Depends(get_db)):
+    if body.role not in ["client", "performer"]:
+        raise HTTPException(status_code=400, detail="Неверная роль")
+
     if db.query(models.User).filter(models.User.email == body.email).first():
         raise HTTPException(status_code=400, detail="Этот email уже зарегистрирован")
 
@@ -47,14 +50,22 @@ def register(body: schemas.UserRegister, db: Session = Depends(get_db)):
     return user
 
 
-@router.post("/login", response_model=schemas.Token)
+@router.post("/login", response_model=schemas.LoginResponse)
 def login(body: schemas.UserLogin, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == body.email).first()
     if not user or not verify_password(body.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Неверный email или пароль")
 
-    token = create_access_token({"sub": user.id})
-    return {"access_token": token}
+    token = create_access_token({"sub": str(user.id)})
+    return {
+        "access_token": token,
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role,
+        },
+    }
 
 
 @router.get("/me", response_model=schemas.UserOut)

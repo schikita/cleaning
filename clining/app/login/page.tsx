@@ -7,10 +7,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+const API_URL = "http://localhost:8000";
+
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/performer/dashboard";
+  const callbackUrl = searchParams.get("callbackUrl");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,19 +23,45 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      // 1. Call FastAPI login directly from the browser
+      const loginRes = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
-      if (res?.error) {
+
+      if (!loginRes.ok) {
         setError("Неверный email или пароль");
         return;
       }
-      router.push(callbackUrl);
+
+      const loginData = await loginRes.json();
+      const { access_token: accessToken, user } = loginData;
+
+      // 2. Pass the user data to NextAuth (no separate /me call needed)
+      const res = await signIn("credentials", {
+        id: String(user.id),
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        accessToken,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        setError("Ошибка авторизации");
+        return;
+      }
+
+      let destination = callbackUrl;
+      if (!destination) {
+        destination = user.role === "admin" ? "/admin" : "/performer/dashboard";
+      }
+      router.push(destination);
       router.refresh();
-    } catch {
-      setError("Ошибка входа");
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Ошибка входа. Проверьте подключение к серверу.");
     } finally {
       setLoading(false);
     }
@@ -84,7 +112,7 @@ export default function LoginPage() {
         <p className="text-center text-sm text-muted-foreground">
           Нет аккаунта?{" "}
           <Link
-            href={`/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+            href={`/signup?callbackUrl=${encodeURIComponent(callbackUrl ?? "")}`}
             className="text-primary hover:underline"
           >
             Регистрация

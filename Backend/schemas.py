@@ -26,6 +26,12 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: dict  # {id, name, email, role}
+
+
 class UserOut(BaseModel):
     id: int
     name: str
@@ -180,3 +186,13 @@ class ClientDashboard(BaseModel):
     completed_orders: int
     total_spent: float
     orders: list[OrderOut] = []
+
+
+# ── Admin ────────────────────────────────────────────────
+class AdminStatsOut(BaseModel):
+    total_users: int
+    active_orders: int
+    completed_orders: int
+
+    class Config:
+        from_attributes = True

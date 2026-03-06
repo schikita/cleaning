@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "../components/theme-provider";
 import { SessionProvider } from "../components/client/SessionProvider";
 import { AvatarProvider } from "../context/AvatarContext";
+import { CookieBanner } from "../components/client/CookieBanner";
 
 export const metadata = {
   title: {
@@ -30,6 +31,7 @@ export default function RootLayout({
           <SessionProvider>
             <AvatarProvider>
               <div className="flex-1 flex flex-col">{children}</div>
+              <CookieBanner />
             </AvatarProvider>
           </SessionProvider>
         </ThemeProvider>

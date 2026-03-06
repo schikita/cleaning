@@ -6,26 +6,26 @@ import { AuthMenu } from "@/components/client/AuthMenu";
 export function Header() {
   return (
     <header
-      className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-300 animate-slide-down"
+      className="sticky top-0 z-50 bg-[var(--warm-white)]/95 dark:bg-[#0f1412]/95 backdrop-blur-md border-b border-[var(--border)] transition-colors duration-300 animate-slide-down"
     >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link
           href="/"
-          className="text-xl font-bold bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent"
+          className="text-xl font-bold text-[var(--brand)] dark:text-[var(--primary)] transition-opacity duration-300 hover:opacity-90"
         >
           ProЧисто
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-8">
           <Link
             href="/performer/feed"
-            className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+            className="text-sm text-[var(--ink-muted)] dark:text-zinc-400 hover:text-[var(--brand)] dark:hover:text-[var(--primary)] transition-colors duration-300"
           >
             Найти работу
           </Link>
           <Link
             href="/client/order/create"
-            className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+            className="text-sm text-[var(--ink-muted)] dark:text-zinc-400 hover:text-[var(--brand)] dark:hover:text-[var(--primary)] transition-colors duration-300"
           >
             Создать заказ
           </Link>

@@ -7,6 +7,7 @@ export interface AuthUser {
   email: string;
   name: string;
   role: UserRole;
+  /** Пустая строка = вход только по коду на email */
   passwordHash: string;
   createdAt: Date;
 }
@@ -24,7 +25,29 @@ export async function verifyPassword(
   password: string,
   hash: string
 ): Promise<boolean> {
+  if (!hash) return false;
   return bcrypt.compare(password, hash);
+}
+
+/** Создать пользователя без пароля (вход только по коду на email) */
+export function createUserWithoutPassword(
+  email: string,
+  name: string,
+  role: UserRole = "client"
+): AuthUser | null {
+  const normalizedEmail = email.toLowerCase().trim();
+  if (users.has(normalizedEmail)) return null;
+  const id = crypto.randomUUID();
+  const user: AuthUser = {
+    id,
+    email: normalizedEmail,
+    name: name.trim(),
+    role,
+    passwordHash: "",
+    createdAt: new Date(),
+  };
+  users.set(normalizedEmail, user);
+  return user;
 }
 
 export async function createUser(
@@ -35,7 +58,7 @@ export async function createUser(
 ): Promise<AuthUser | null> {
   const normalizedEmail = email.toLowerCase().trim();
   if (users.has(normalizedEmail)) return null;
-  const hash = await hashPassword(password);
+  const hash = password ? await hashPassword(password) : "";
   const id = crypto.randomUUID();
   const user: AuthUser = {
     id,

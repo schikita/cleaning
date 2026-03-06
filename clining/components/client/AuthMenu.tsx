@@ -60,13 +60,13 @@ export function AuthMenu() {
       <ThemeToggle />
       <Link
         href="/performer/dashboard"
-        className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors hidden sm:block"
+        className="text-sm font-medium text-[var(--ink-muted)] hover:text-[var(--brand)] dark:hover:text-[var(--primary)] transition-colors hidden sm:block"
       >
         Исполнитель
       </Link>
       <Link
         href="/client/dashboard"
-        className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors hidden sm:block"
+        className="text-sm font-medium text-[var(--ink-muted)] hover:text-[var(--brand)] dark:hover:text-[var(--primary)] transition-colors hidden sm:block"
       >
         Клиент
       </Link>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AnimateOnScroll } from "./animate-on-scroll";
+import { AbstractBackground } from "./abstract-background";
 
 const SERVICES = [
   {
@@ -23,8 +24,8 @@ const SERVICES = [
         />
       </svg>
     ),
-    accent: "#00d2ff",
-    accentBg: "rgba(0,210,255,0.08)",
+    accent: "var(--brand)",
+    accentBg: "var(--accent)",
   },
   {
     title: "Уборка офисов",
@@ -45,8 +46,8 @@ const SERVICES = [
         />
       </svg>
     ),
-    accent: "#5b8af5",
-    accentBg: "rgba(91,138,245,0.08)",
+    accent: "var(--brand-muted)",
+    accentBg: "var(--accent)",
   },
   {
     title: "Химчистка мебели",
@@ -67,8 +68,8 @@ const SERVICES = [
         />
       </svg>
     ),
-    accent: "#7253df",
-    accentBg: "rgba(114,83,223,0.08)",
+    accent: "var(--brand)",
+    accentBg: "var(--accent)",
   },
   {
     title: "Мойка окон",
@@ -89,8 +90,8 @@ const SERVICES = [
         />
       </svg>
     ),
-    accent: "#00d2ff",
-    accentBg: "rgba(0,210,255,0.08)",
+    accent: "var(--brand-muted)",
+    accentBg: "var(--accent)",
   },
   {
     title: "Уборка после ремонта",
@@ -111,8 +112,8 @@ const SERVICES = [
         />
       </svg>
     ),
-    accent: "#5b8af5",
-    accentBg: "rgba(91,138,245,0.08)",
+    accent: "var(--brand)",
+    accentBg: "var(--accent)",
   },
   {
     title: "Промышленный клининг",
@@ -139,27 +140,28 @@ const SERVICES = [
         />
       </svg>
     ),
-    accent: "#7253df",
-    accentBg: "rgba(114,83,223,0.08)",
+    accent: "var(--brand-muted)",
+    accentBg: "var(--accent)",
   },
 ] as const;
 
 export function ServicesSection() {
   return (
     <section
-      className="py-24 sm:py-32 bg-[#f8f9fb]"
+      className="relative py-24 sm:py-32 bg-[var(--cream)] dark:bg-[#0f1412] overflow-hidden"
       id="services"
       aria-label="Услуги"
     >
-      <div className="container mx-auto px-4 sm:px-6">
+      <AbstractBackground variant="soft" />
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <AnimateOnScroll className="text-center mb-16">
-          <span className="inline-block text-sm font-semibold tracking-widest uppercase text-[#00d2ff] mb-4">
+          <span className="inline-block text-sm font-semibold tracking-widest uppercase text-[var(--brand)] dark:text-[var(--primary)] mb-4">
             Услуги
           </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-5">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--ink)] dark:text-white mb-5">
             Все виды клининга
           </h2>
-          <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+          <p className="text-lg text-[var(--ink-muted)] dark:text-zinc-400 max-w-2xl mx-auto">
             Выберите нужную услугу — получите отклики от проверенных
             специалистов в&nbsp;вашем городе
           </p>
@@ -167,22 +169,14 @@ export function ServicesSection() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 max-w-6xl mx-auto">
           {SERVICES.map((service, idx) => (
-            <AnimateOnScroll key={service.slug} delay={idx * 0.08}>
+            <AnimateOnScroll key={service.slug} delay={idx * 0.08} direction="scale">
               <Link
                 href={`/client/order/create?category=${service.slug}`}
-                className="group block relative bg-white rounded-2xl p-7 sm:p-8 border border-slate-100 hover:border-transparent hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 h-full"
+                className="group block relative bg-[var(--warm-white)] dark:bg-[#1a211e] rounded-2xl p-7 sm:p-8 border border-[var(--border)] hover:border-[var(--brand)]/30 dark:hover:border-[var(--primary)]/30 hover:shadow-xl transition-all duration-500 ease-out hover:-translate-y-1.5 h-full"
               >
-                {/* Hover gradient overlay */}
-                <div
-                  className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  style={{
-                    background: `radial-gradient(circle at top right, ${service.accentBg}, transparent 70%)`,
-                  }}
-                />
-
                 <div className="relative z-10">
                   <div
-                    className="w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
+                    className="w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-105"
                     style={{
                       backgroundColor: service.accentBg,
                       color: service.accent,
@@ -191,17 +185,16 @@ export function ServicesSection() {
                     {service.icon}
                   </div>
 
-                  <h3 className="text-xl font-bold text-slate-900 mb-2.5 group-hover:text-slate-800">
+                  <h3 className="text-xl font-bold text-[var(--ink)] dark:text-white mb-2.5">
                     {service.title}
                   </h3>
 
-                  <p className="text-slate-500 text-[15px] leading-relaxed mb-5">
+                  <p className="text-[var(--ink-muted)] dark:text-zinc-400 text-[15px] leading-relaxed mb-5">
                     {service.desc}
                   </p>
 
                   <span
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold transition-all group-hover:gap-2.5"
-                    style={{ color: service.accent }}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold transition-all group-hover:gap-2.5 text-[var(--brand)] dark:text-[var(--primary)]"
                   >
                     Заказать
                     <svg

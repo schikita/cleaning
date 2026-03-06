@@ -23,52 +23,48 @@ function Skel({ className = "", tone = "dark" }: SkelProps) {
 export function HomeSkeleton() {
   return (
     <div
-      className="min-h-screen bg-[#060a14]"
+      className="min-h-screen bg-[var(--warm-white)] dark:bg-[#0f1412]"
       aria-hidden="true"
       aria-busy="true"
     >
       {/* ── Hero Skeleton ─────────────────────────────────── */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Ambient glow */}
-        <div className="absolute top-[-10%] left-[-5%] w-[520px] h-[520px] rounded-full bg-[#00d2ff]/[0.035] blur-[130px] skeleton-float" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[640px] h-[640px] rounded-full bg-[#7253df]/[0.035] blur-[140px] skeleton-float2" />
-
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 relative z-10 py-20">
-          <div className="max-w-5xl mx-auto text-center flex flex-col items-center">
+          <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
             <Skel
-              tone="dark"
-              className="h-10 w-64 rounded-full bg-white/[0.05] mb-10"
+              tone="light"
+              className="h-10 w-64 rounded-full bg-[var(--border)] dark:bg-white/10 mb-10"
             />
 
             <Skel
-              tone="dark"
-              className="h-16 sm:h-20 md:h-24 w-[320px] sm:w-[440px] md:w-[560px] rounded-2xl bg-white/[0.05] mb-6"
+              tone="light"
+              className="h-16 sm:h-20 md:h-24 w-[320px] sm:w-[440px] md:w-[560px] rounded-2xl bg-[var(--border)] dark:bg-white/10 mb-6"
             />
 
             <Skel
-              tone="dark"
-              className="h-7 w-[280px] sm:w-[380px] rounded-xl bg-white/[0.04] mb-4"
+              tone="light"
+              className="h-7 w-[280px] sm:w-[380px] rounded-xl bg-[var(--border)] dark:bg-white/5 mb-4"
             />
 
             <div className="space-y-2.5 mb-12 flex flex-col items-center">
               <Skel
-                tone="dark"
-                className="h-5 w-[340px] sm:w-[480px] rounded-lg bg-white/[0.035]"
+                tone="light"
+                className="h-5 w-[340px] sm:w-[480px] rounded-lg bg-[var(--border)] dark:bg-white/5"
               />
               <Skel
-                tone="dark"
-                className="h-5 w-[260px] sm:w-[360px] rounded-lg bg-white/[0.035]"
+                tone="light"
+                className="h-5 w-[260px] sm:w-[360px] rounded-lg bg-[var(--border)] dark:bg-white/5"
               />
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
               <Skel
-                tone="dark"
-                className="h-14 w-52 rounded-2xl bg-[#00d2ff]/[0.10]"
+                tone="light"
+                className="h-14 w-52 rounded-xl bg-[var(--accent)] dark:bg-white/10"
               />
               <Skel
-                tone="dark"
-                className="h-14 w-52 rounded-2xl bg-white/[0.05] border border-white/[0.08]"
+                tone="light"
+                className="h-14 w-52 rounded-xl bg-[var(--border)] dark:bg-white/5 border border-[var(--border)]"
               />
             </div>
 
@@ -76,12 +72,12 @@ export function HomeSkeleton() {
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="flex flex-col items-center gap-2">
                   <Skel
-                    tone="dark"
-                    className="h-9 w-20 rounded-lg bg-white/[0.05]"
+                    tone="light"
+                    className="h-9 w-20 rounded-lg bg-[var(--accent)] dark:bg-white/10"
                   />
                   <Skel
-                    tone="dark"
-                    className="h-4 w-28 rounded bg-white/[0.035]"
+                    tone="light"
+                    className="h-4 w-28 rounded bg-[var(--border)] dark:bg-white/5"
                   />
                 </div>
               ))}
@@ -91,17 +87,17 @@ export function HomeSkeleton() {
       </section>
 
       {/* ── Services Skeleton ─────────────────────────────── */}
-      <section className="py-24 sm:py-32 bg-[#f8f9fb]">
+      <section className="py-24 sm:py-32 bg-[var(--cream)] dark:bg-[#0f1412]">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col items-center mb-16">
-            <Skel tone="light" className="h-4 w-16 rounded bg-slate-200 mb-4" />
+            <Skel tone="light" className="h-4 w-16 rounded bg-[var(--border)] dark:bg-white/10 mb-4" />
             <Skel
               tone="light"
-              className="h-10 w-72 sm:w-96 rounded-xl bg-slate-200 mb-5"
+              className="h-10 w-72 sm:w-96 rounded-xl bg-[var(--border)] dark:bg-white/10 mb-5"
             />
             <Skel
               tone="light"
-              className="h-5 w-80 sm:w-[420px] rounded-lg bg-slate-100"
+              className="h-5 w-80 sm:w-[420px] rounded-lg bg-[var(--border)] dark:bg-white/5"
             />
           </div>
 
@@ -109,27 +105,27 @@ export function HomeSkeleton() {
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-2xl p-7 sm:p-8 border border-slate-100 shadow-[0_10px_30px_rgba(15,23,42,0.06)]"
+                className="bg-[var(--warm-white)] dark:bg-[#1a211e] rounded-2xl p-7 sm:p-8 border border-[var(--border)]"
               >
                 <Skel
                   tone="light"
-                  className="w-14 h-14 rounded-xl bg-slate-100 mb-5"
+                  className="w-14 h-14 rounded-xl bg-[var(--accent)] dark:bg-white/10 mb-5"
                 />
                 <Skel
                   tone="light"
-                  className="h-6 w-36 rounded-lg bg-slate-100 mb-3"
+                  className="h-6 w-36 rounded-lg bg-[var(--border)] dark:bg-white/10 mb-3"
                 />
                 <div className="space-y-2 mb-5">
                   <Skel
                     tone="light"
-                    className="h-4 w-full rounded bg-slate-50"
+                    className="h-4 w-full rounded bg-[var(--border)] dark:bg-white/5"
                   />
                   <Skel
                     tone="light"
-                    className="h-4 w-4/5 rounded bg-slate-50"
+                    className="h-4 w-4/5 rounded bg-[var(--border)] dark:bg-white/5"
                   />
                 </div>
-                <Skel tone="light" className="h-4 w-24 rounded bg-slate-100" />
+                <Skel tone="light" className="h-4 w-24 rounded bg-[var(--accent)] dark:bg-white/10" />
               </div>
             ))}
           </div>
@@ -137,15 +133,15 @@ export function HomeSkeleton() {
       </section>
 
       {/* ── How It Works Skeleton ─────────────────────────── */}
-      <section className="py-24 sm:py-32 bg-white">
+      <section className="py-24 sm:py-32 bg-[var(--warm-white)] dark:bg-[#0f1412]">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col items-center mb-16 sm:mb-20">
-            <Skel tone="light" className="h-4 w-28 rounded bg-slate-200 mb-4" />
+            <Skel tone="light" className="h-4 w-28 rounded bg-[var(--border)] dark:bg-white/10 mb-4" />
             <Skel
               tone="light"
-              className="h-10 w-72 sm:w-96 rounded-xl bg-slate-200 mb-5"
+              className="h-10 w-72 sm:w-96 rounded-xl bg-[var(--border)] dark:bg-white/10 mb-5"
             />
-            <Skel tone="light" className="h-5 w-64 rounded-lg bg-slate-100" />
+            <Skel tone="light" className="h-5 w-64 rounded-lg bg-[var(--border)] dark:bg-white/5" />
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 sm:gap-12 max-w-5xl mx-auto">
@@ -153,15 +149,15 @@ export function HomeSkeleton() {
               <div key={i} className="flex flex-col items-center">
                 <Skel
                   tone="light"
-                  className="w-[104px] h-[104px] rounded-3xl bg-slate-100 mb-7"
+                  className="w-[104px] h-[104px] rounded-3xl bg-[var(--accent)] dark:bg-white/10 mb-7"
                 />
                 <Skel
                   tone="light"
-                  className="h-7 w-40 rounded-lg bg-slate-100 mb-3"
+                  className="h-7 w-40 rounded-lg bg-[var(--border)] dark:bg-white/10 mb-3"
                 />
                 <div className="space-y-2 flex flex-col items-center">
-                  <Skel tone="light" className="h-4 w-52 rounded bg-slate-50" />
-                  <Skel tone="light" className="h-4 w-40 rounded bg-slate-50" />
+                  <Skel tone="light" className="h-4 w-52 rounded bg-[var(--border)] dark:bg-white/5" />
+                  <Skel tone="light" className="h-4 w-40 rounded bg-[var(--border)] dark:bg-white/5" />
                 </div>
               </div>
             ))}
@@ -170,42 +166,42 @@ export function HomeSkeleton() {
       </section>
 
       {/* ── Trust Skeleton ────────────────────────────────── */}
-      <section className="py-24 sm:py-32 bg-[#060a14]">
+      <section className="py-24 sm:py-32 bg-[var(--cream)] dark:bg-[#1a211e]">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center max-w-6xl mx-auto">
             <div>
               <Skel
-                tone="dark"
-                className="h-4 w-20 rounded bg-white/[0.07] mb-4"
+                tone="light"
+                className="h-4 w-20 rounded bg-[var(--border)] dark:bg-white/10 mb-4"
               />
               <Skel
-                tone="dark"
-                className="h-12 w-80 rounded-xl bg-white/[0.05] mb-3"
+                tone="light"
+                className="h-12 w-80 rounded-xl bg-[var(--border)] dark:bg-white/10 mb-3"
               />
               <Skel
-                tone="dark"
-                className="h-12 w-64 rounded-xl bg-white/[0.05] mb-5"
+                tone="light"
+                className="h-12 w-64 rounded-xl bg-[var(--border)] dark:bg-white/5 mb-5"
               />
               <Skel
-                tone="dark"
-                className="h-5 w-72 rounded-lg bg-white/[0.04] mb-10"
+                tone="light"
+                className="h-5 w-72 rounded-lg bg-[var(--border)] dark:bg-white/5 mb-10"
               />
 
               <div className="space-y-5">
                 {[...Array(4)].map((_, i) => (
                   <div key={i} className="flex gap-4 items-start">
                     <Skel
-                      tone="dark"
-                      className="w-10 h-10 rounded-xl bg-white/[0.05] flex-shrink-0"
+                      tone="light"
+                      className="w-10 h-10 rounded-xl bg-[var(--accent)] dark:bg-white/10 flex-shrink-0"
                     />
                     <div className="flex-1">
                       <Skel
-                        tone="dark"
-                        className="h-5 w-44 rounded bg-white/[0.05] mb-2"
+                        tone="light"
+                        className="h-5 w-44 rounded bg-[var(--border)] dark:bg-white/10 mb-2"
                       />
                       <Skel
-                        tone="dark"
-                        className="h-4 w-full rounded bg-white/[0.035]"
+                        tone="light"
+                        className="h-4 w-full rounded bg-[var(--border)] dark:bg-white/5"
                       />
                     </div>
                   </div>
@@ -213,28 +209,28 @@ export function HomeSkeleton() {
               </div>
             </div>
 
-            <div className="bg-[#0d1525] rounded-3xl p-8 sm:p-10 border border-white/[0.08] shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+            <div className="bg-[var(--warm-white)] dark:bg-[#0f1412] rounded-3xl p-8 sm:p-10 border border-[var(--border)] dark:border-white/10">
               <div className="flex items-center gap-4 mb-6">
                 <Skel
-                  tone="dark"
-                  className="w-12 h-12 rounded-full bg-white/[0.07]"
+                  tone="light"
+                  className="w-12 h-12 rounded-full bg-[var(--accent)] dark:bg-white/10"
                 />
                 <div className="flex-1">
                   <Skel
-                    tone="dark"
-                    className="h-5 w-24 rounded bg-white/[0.07] mb-1.5"
+                    tone="light"
+                    className="h-5 w-24 rounded bg-[var(--border)] dark:bg-white/10 mb-1.5"
                   />
                   <Skel
-                    tone="dark"
-                    className="h-3.5 w-32 rounded bg-white/[0.04]"
+                    tone="light"
+                    className="h-3.5 w-32 rounded bg-[var(--border)] dark:bg-white/5"
                   />
                 </div>
                 <div className="flex gap-1">
                   {[...Array(5)].map((_, i) => (
                     <Skel
                       key={i}
-                      tone="dark"
-                      className="w-4 h-4 rounded bg-white/[0.07]"
+                      tone="light"
+                      className="w-4 h-4 rounded bg-[var(--accent)] dark:bg-white/10"
                     />
                   ))}
                 </div>
@@ -242,22 +238,22 @@ export function HomeSkeleton() {
 
               <div className="space-y-2.5 mb-6">
                 <Skel
-                  tone="dark"
-                  className="h-4 w-full rounded bg-white/[0.04]"
+                  tone="light"
+                  className="h-4 w-full rounded bg-[var(--border)] dark:bg-white/5"
                 />
                 <Skel
-                  tone="dark"
-                  className="h-4 w-full rounded bg-white/[0.04]"
+                  tone="light"
+                  className="h-4 w-full rounded bg-[var(--border)] dark:bg-white/5"
                 />
                 <Skel
-                  tone="dark"
-                  className="h-4 w-3/4 rounded bg-white/[0.04]"
+                  tone="light"
+                  className="h-4 w-3/4 rounded bg-[var(--border)] dark:bg-white/5"
                 />
               </div>
 
               <Skel
-                tone="dark"
-                className="h-8 w-64 rounded-lg bg-white/[0.04]"
+                tone="light"
+                className="h-8 w-64 rounded-lg bg-[var(--border)] dark:bg-white/5"
               />
             </div>
           </div>
@@ -265,17 +261,17 @@ export function HomeSkeleton() {
       </section>
 
       {/* ── Geography Skeleton ────────────────────────────── */}
-      <section className="py-24 sm:py-32 bg-[#f8f9fb]">
+      <section className="py-24 sm:py-32 bg-[var(--warm-white)] dark:bg-[#0f1412]">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col items-center mb-14">
-            <Skel tone="light" className="h-4 w-20 rounded bg-slate-200 mb-4" />
+            <Skel tone="light" className="h-4 w-20 rounded bg-[var(--border)] dark:bg-white/10 mb-4" />
             <Skel
               tone="light"
-              className="h-10 w-80 sm:w-[420px] rounded-xl bg-slate-200 mb-5"
+              className="h-10 w-80 sm:w-[420px] rounded-xl bg-[var(--border)] dark:bg-white/10 mb-5"
             />
             <Skel
               tone="light"
-              className="h-5 w-72 sm:w-[380px] rounded-lg bg-slate-100"
+              className="h-5 w-72 sm:w-[380px] rounded-lg bg-[var(--border)] dark:bg-white/5"
             />
           </div>
 
@@ -283,13 +279,13 @@ export function HomeSkeleton() {
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-100 shadow-[0_10px_30px_rgba(15,23,42,0.06)] flex flex-col items-center"
+                className="p-5 sm:p-6 rounded-2xl bg-[var(--warm-white)] dark:bg-[#1a211e] border border-[var(--border)] flex flex-col items-center"
               >
                 <Skel
                   tone="light"
-                  className="h-5 w-20 rounded bg-slate-100 mb-2"
+                  className="h-5 w-20 rounded bg-[var(--accent)] dark:bg-white/10 mb-2"
                 />
-                <Skel tone="light" className="h-3.5 w-24 rounded bg-slate-50" />
+                <Skel tone="light" className="h-3.5 w-24 rounded bg-[var(--border)] dark:bg-white/5" />
               </div>
             ))}
           </div>
@@ -297,25 +293,25 @@ export function HomeSkeleton() {
       </section>
 
       {/* ── CTA Skeleton ──────────────────────────────────── */}
-      <section className="py-24 sm:py-32 bg-white">
+      <section className="py-24 sm:py-32 bg-[var(--cream)] dark:bg-[#0f1412]">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="max-w-4xl mx-auto bg-[#060a14] rounded-[2rem] p-10 sm:p-14 md:p-16 flex flex-col items-center shadow-[0_30px_90px_rgba(0,0,0,0.25)] border border-white/[0.06]">
+          <div className="max-w-4xl mx-auto bg-[var(--brand)] dark:bg-[#1a211e] rounded-3xl p-10 sm:p-14 md:p-16 flex flex-col items-center border border-[var(--border)] dark:border-white/10">
             <Skel
-              tone="dark"
-              className="h-10 sm:h-12 w-72 sm:w-96 rounded-xl bg-white/[0.05] mb-5"
+              tone="light"
+              className="h-10 sm:h-12 w-72 sm:w-96 rounded-xl bg-white/20 dark:bg-white/10 mb-5"
             />
             <Skel
-              tone="dark"
-              className="h-5 w-64 sm:w-80 rounded-lg bg-white/[0.035] mb-10"
+              tone="light"
+              className="h-5 w-64 sm:w-80 rounded-lg bg-white/15 dark:bg-white/5 mb-10"
             />
             <div className="flex flex-col sm:flex-row gap-4">
               <Skel
-                tone="dark"
-                className="h-14 w-48 rounded-2xl bg-[#00d2ff]/[0.10]"
+                tone="light"
+                className="h-14 w-48 rounded-xl bg-white/30 dark:bg-white/15"
               />
               <Skel
-                tone="dark"
-                className="h-14 w-48 rounded-2xl bg-white/[0.05] border border-white/[0.08]"
+                tone="light"
+                className="h-14 w-48 rounded-xl bg-white/10 border border-white/20"
               />
             </div>
           </div>
@@ -323,29 +319,29 @@ export function HomeSkeleton() {
       </section>
 
       {/* ── Footer Skeleton ───────────────────────────────── */}
-      <footer className="bg-[#060a14] border-t border-white/[0.06] py-14 sm:py-16">
+      <footer className="bg-[var(--cream)] dark:bg-[#0f1412] border-t border-[var(--border)] py-14 sm:py-16">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-14">
             <div className="col-span-2 md:col-span-1">
               <Skel
-                tone="dark"
-                className="h-7 w-28 rounded bg-white/[0.07] mb-4"
+                tone="light"
+                className="h-7 w-28 rounded bg-[var(--border)] dark:bg-white/10 mb-4"
               />
-              <Skel tone="dark" className="h-4 w-40 rounded bg-white/[0.04]" />
+              <Skel tone="light" className="h-4 w-40 rounded bg-[var(--border)] dark:bg-white/5" />
             </div>
 
             {[...Array(4)].map((_, i) => (
               <div key={i}>
                 <Skel
-                  tone="dark"
-                  className="h-4 w-16 rounded bg-white/[0.07] mb-4"
+                  tone="light"
+                  className="h-4 w-16 rounded bg-[var(--border)] dark:bg-white/10 mb-4"
                 />
                 <div className="space-y-2.5">
                   {[...Array(4 + (i % 2))].map((_, j) => (
                     <Skel
                       key={j}
-                      tone="dark"
-                      className="h-3.5 w-28 rounded bg-white/[0.035]"
+                      tone="light"
+                      className="h-3.5 w-28 rounded bg-[var(--border)] dark:bg-white/5"
                     />
                   ))}
                 </div>
@@ -353,11 +349,11 @@ export function HomeSkeleton() {
             ))}
           </div>
 
-          <div className="pt-8 border-t border-white/[0.06] flex justify-between">
-            <Skel tone="dark" className="h-4 w-52 rounded bg-white/[0.035]" />
+          <div className="pt-8 border-t border-[var(--border)] flex justify-between">
+            <Skel tone="light" className="h-4 w-52 rounded bg-[var(--border)] dark:bg-white/5" />
             <div className="flex gap-6">
-              <Skel tone="dark" className="h-4 w-16 rounded bg-white/[0.035]" />
-              <Skel tone="dark" className="h-4 w-28 rounded bg-white/[0.035]" />
+              <Skel tone="light" className="h-4 w-16 rounded bg-[var(--border)] dark:bg-white/5" />
+              <Skel tone="light" className="h-4 w-28 rounded bg-[var(--border)] dark:bg-white/5" />
             </div>
           </div>
         </div>

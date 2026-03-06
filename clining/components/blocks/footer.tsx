@@ -39,6 +39,7 @@ const FOOTER_LINKS = {
       { label: "Безопасность", href: "/safety" },
       { label: "Условия использования", href: "/terms" },
       { label: "Политика конфиденциальности", href: "/privacy" },
+      { label: "Политика использования cookie", href: "/cookies" },
     ],
   },
 } as const;
@@ -48,26 +49,25 @@ function Footer() {
 
   return (
     <footer
-      className="bg-[#060a14] border-t border-white/[0.04]"
+      className="bg-[var(--cream)] dark:bg-[#0f1412] border-t border-[var(--border)]"
       role="contentinfo"
     >
       <div className="container mx-auto px-4 sm:px-6 py-14 sm:py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-14">
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="inline-block mb-4">
-              <span className="text-2xl font-extrabold">
-                <span className="text-[#00d2ff]">Pro</span>
-                <span className="text-[#7253df]">Чисто</span>
+              <span className="text-2xl font-bold text-[var(--brand)] dark:text-[var(--primary)]">
+                ProЧисто
               </span>
             </Link>
-            <p className="text-white/30 text-sm leading-relaxed max-w-[200px]">
+            <p className="text-[var(--ink-muted)] dark:text-zinc-500 text-sm leading-relaxed max-w-[200px]">
               Маркетплейс клининговых услуг №1 в&nbsp;Беларуси
             </p>
           </div>
 
           {Object.values(FOOTER_LINKS).map((group) => (
             <div key={group.title}>
-              <h4 className="text-white/80 font-semibold text-sm mb-4">
+              <h4 className="text-[var(--ink)] dark:text-zinc-200 font-semibold text-sm mb-4">
                 {group.title}
               </h4>
               <ul className="space-y-2.5">
@@ -75,7 +75,7 @@ function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-white/30 text-sm hover:text-[#00d2ff] transition-colors"
+                      className="text-[var(--ink-muted)] dark:text-zinc-500 text-sm hover:text-[var(--brand)] dark:hover:text-[var(--primary)] transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -86,20 +86,20 @@ function Footer() {
           ))}
         </div>
 
-        <div className="pt-8 border-t border-white/[0.04] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-white/20 text-sm">
+        <div className="pt-8 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span className="text-[var(--ink-muted)] dark:text-zinc-500 text-sm">
             © {year} ProЧисто. Все права защищены.
           </span>
           <div className="flex items-center gap-6">
             <Link
               href="/terms"
-              className="text-white/20 text-sm hover:text-white/40 transition-colors"
+              className="text-[var(--ink-muted)] dark:text-zinc-500 text-sm hover:text-[var(--brand)] dark:hover:text-[var(--primary)] transition-colors"
             >
               Условия
             </Link>
             <Link
               href="/privacy"
-              className="text-white/20 text-sm hover:text-white/40 transition-colors"
+              className="text-[var(--ink-muted)] dark:text-zinc-500 text-sm hover:text-[var(--brand)] dark:hover:text-[var(--primary)] transition-colors"
             >
               Конфиденциальность
             </Link>

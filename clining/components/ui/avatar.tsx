@@ -13,13 +13,28 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
 const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
   ({ className, src, fallback, size = "default", ...props }, ref) => {
     const [error, setError] = React.useState(false)
-    
+
+    const normalizedSrc = React.useMemo(() => {
+      if (!src) return undefined
+      const s = src.trim()
+      if (!s || s === "string") return undefined
+      if (
+        s.startsWith("http://") ||
+        s.startsWith("https://") ||
+        s.startsWith("/") ||
+        s.startsWith("data:")
+      ) {
+        return s
+      }
+      return undefined
+    }, [src])
+
     const sizes = {
       sm: "h-8 w-8",
       default: "h-10 w-10",
       lg: "h-14 w-14",
     }
-    
+
     return (
       <div
         ref={ref}
@@ -30,9 +45,9 @@ const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
         )}
         {...props}
       >
-        {src && !error ? (
+        {normalizedSrc && !error ? (
           <img
-            src={src}
+            src={normalizedSrc}
             alt={fallback}
             className="aspect-square h-full w-full"
             onError={() => setError(true)}

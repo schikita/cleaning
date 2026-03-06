@@ -2,6 +2,16 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import {
+  LayoutGrid,
+  Sparkles,
+  Droplets,
+  Hammer,
+  PanelTop,
+  Sofa,
+  type LucideIcon,
+} from "lucide-react";
+import { DatePickerDropdown } from "./DatePickerDropdown";
 
 interface Filters {
   city: string;
@@ -16,6 +26,10 @@ interface CleaningFiltersProps {
   onChange: (filters: Filters) => void;
 }
 
+const PRICE_MIN = 50;
+const PRICE_MAX = 2000;
+const PRICE_STEP = 50;
+
 const belarusCities = [
   "Все города",
   "Минск",
@@ -27,13 +41,13 @@ const belarusCities = [
   "Бобруйск",
 ];
 
-const serviceTypes = [
-  { id: "all", label: "Все услуги", icon: "🧹" },
-  { id: "regular", label: "Поддерживающая", icon: "✨" },
-  { id: "deep", label: "Генеральная", icon: "🫧" },
-  { id: "repair", label: "После ремонта", icon: "🔨" },
-  { id: "windows", label: "Мытье окон", icon: "🪟" },
-  { id: "carpet", label: "Химчистка", icon: "🛋️" },
+const serviceTypes: { id: string; label: string; icon: LucideIcon }[] = [
+  { id: "all", label: "Все услуги", icon: LayoutGrid },
+  { id: "regular", label: "Поддерживающая", icon: Sparkles },
+  { id: "deep", label: "Генеральная", icon: Droplets },
+  { id: "repair", label: "После ремонта", icon: Hammer },
+  { id: "windows", label: "Мытье окон", icon: PanelTop },
+  { id: "carpet", label: "Химчистка", icon: Sofa },
 ];
 
 export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
@@ -46,10 +60,18 @@ export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
   const activeCount = [
     filters.city !== "Все города",
     filters.serviceType !== "all",
-    filters.priceRange[1] < 2000,
+    filters.priceRange[0] > PRICE_MIN || filters.priceRange[1] < PRICE_MAX,
     filters.date !== "",
     filters.urgent,
   ].filter(Boolean).length;
+
+  const setPriceRange = (min: number, max: number) => {
+    const clampedMin = Math.max(PRICE_MIN, Math.min(PRICE_MAX, min));
+    const clampedMax = Math.max(PRICE_MIN, Math.min(PRICE_MAX, max));
+    const finalMin = Math.min(clampedMin, clampedMax);
+    const finalMax = Math.max(clampedMin, clampedMax);
+    update("priceRange", [finalMin, finalMax]);
+  };
 
   const FiltersContent = () => (
     <div className="p-6 space-y-6">
@@ -112,7 +134,7 @@ export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
                   : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
-              <span>{type.icon}</span>
+              <type.icon className="h-4 w-4 shrink-0" aria-hidden />
               <span>{type.label}</span>
             </button>
           ))}
@@ -121,26 +143,44 @@ export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
 
       {/* Бюджет */}
       <div>
-        <div className="flex justify-between text-sm mb-2">
-          <span className="font-semibold text-slate-700 dark:text-slate-300">
-            Бюджет
-          </span>
-          <span className="text-cyan-600 dark:text-cyan-400 font-bold">
-            до {filters.priceRange[1]} BYN
-          </span>
+        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          Бюджет, BYN
+        </label>
+        <div className="flex items-center gap-2">
+          <div className="flex-1 flex flex-col gap-1">
+            <span className="text-xs text-slate-500 dark:text-slate-400">от</span>
+            <input
+              type="number"
+              min={PRICE_MIN}
+              max={PRICE_MAX}
+              step={PRICE_STEP}
+              value={filters.priceRange[0]}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                if (!Number.isNaN(val)) setPriceRange(val, filters.priceRange[1]);
+              }}
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
+          <span className="text-slate-400 dark:text-slate-500 mt-5">—</span>
+          <div className="flex-1 flex flex-col gap-1">
+            <span className="text-xs text-slate-500 dark:text-slate-400">до</span>
+            <input
+              type="number"
+              min={PRICE_MIN}
+              max={PRICE_MAX}
+              step={PRICE_STEP}
+              value={filters.priceRange[1]}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                if (!Number.isNaN(val)) setPriceRange(filters.priceRange[0], val);
+              }}
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
         </div>
-        <input
-          type="range"
-          min="50"
-          max="2000"
-          step="50"
-          value={filters.priceRange[1]}
-          onChange={(e) => update("priceRange", [50, parseInt(e.target.value)])}
-          className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-        />
-        <div className="flex justify-between text-xs text-slate-400 mt-1">
-          <span>50 BYN</span>
-          <span>2000 BYN</span>
+        <div className="flex justify-between text-xs text-slate-400 mt-1.5">
+          <span>{PRICE_MIN} — {PRICE_MAX}</span>
         </div>
       </div>
 
@@ -149,11 +189,10 @@ export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
         <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
           Когда нужно
         </label>
-        <input
-          type="date"
+        <DatePickerDropdown
           value={filters.date}
-          onChange={(e) => update("date", e.target.value)}
-          className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500"
+          onChange={(value) => update("date", value)}
+          placeholder="Выберите дату"
         />
       </div>
 
@@ -183,7 +222,7 @@ export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
             onChange({
               city: "Все города",
               serviceType: "all",
-              priceRange: [50, 2000],
+              priceRange: [PRICE_MIN, PRICE_MAX],
               date: "",
               urgent: false,
             })

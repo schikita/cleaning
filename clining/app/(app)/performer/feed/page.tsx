@@ -5,79 +5,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CleaningFilters } from "@/components/performer/CleaningFilters";
 import { OrderCardSkeleton } from "@/components/performer/OrderCardSkeleton";
 
-// Моковые данные для Беларуси
-const orders = [
-  {
-    id: "1",
-    title: "Генеральная уборка 3-комнатной квартиры",
-    description:
-      "После ремонта, удаление строительной пыли. Мытье окон, балкон, кухня, 2 санузла. Квартира 85 м² на пр. Независимости.",
-    category: "Клининг",
-    serviceType: "repair",
-    budget: 450,
-    city: "Минск",
-    date: "2024-12-25",
-    client: { name: "Анна К.", rating: 4.9 },
-    responsesCount: 5,
-    urgent: true,
-  },
-  {
-    id: "2",
-    title: "Поддерживающая уборка офиса 120 м²",
-    description:
-      "Еженедельная уборка. Помыть полы, протереть пыль, вынести мусор. Район Московская.",
-    category: "Клининг",
-    serviceType: "regular",
-    budget: 180,
-    city: "Минск",
-    date: "2024-12-23",
-    client: { name: 'ООО "БелТех"', rating: 4.7 },
-    responsesCount: 12,
-    urgent: false,
-  },
-  {
-    id: "3",
-    title: "Химчистка дивана и 2 кресел",
-    description:
-      "Нужна качественная химчистка мебели. Пятна от кофе и вина. Материал - велюр.",
-    category: "Клининг",
-    serviceType: "carpet",
-    budget: 320,
-    city: "Гомель",
-    date: "2024-12-24",
-    client: { name: "Дмитрий В.", rating: 5.0 },
-    responsesCount: 2,
-    urgent: true,
-  },
-  {
-    id: "4",
-    title: "Мытье окон в коттедже",
-    description:
-      "Двухэтажный коттедж, окна с обеих сторон. Около 12 окон разного размера.",
-    category: "Клининг",
-    serviceType: "windows",
-    budget: 280,
-    city: "Могилев",
-    date: "2024-12-26",
-    client: { name: "Сергей П.", rating: 4.8 },
-    responsesCount: 3,
-    urgent: false,
-  },
-  {
-    id: "5",
-    title: "Уборка кухни от жира и нагара",
-    description:
-      "Генеральная чистка кухни: вытяжка, плита, фартук, шкафчики снаружи и внутри.",
-    category: "Клининг",
-    serviceType: "kitchen",
-    budget: 220,
-    city: "Брест",
-    date: "2024-12-27",
-    client: { name: "Марина С.", rating: 4.6 },
-    responsesCount: 7,
-    urgent: false,
-  },
-];
+type OrderForFeed = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  serviceType: string;
+  budget: number;
+  city: string;
+  date: string | null;
+  client: { name: string; rating: number };
+  responsesCount: number;
+  urgent: boolean;
+};
 
 interface Filters {
   city: string;
@@ -106,13 +46,29 @@ export default function FeedPage() {
   });
 
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState<(typeof orders)[0] | null>(
-    null,
-  );
+  const [orders, setOrders] = useState<OrderForFeed[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<OrderForFeed | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
+    let cancelled = false;
+    async function load() {
+      setIsLoading(true);
+      try {
+        const res = await fetch("/api/orders/feed", { cache: "no-store" });
+        const data = (await res.json()) as OrderForFeed[];
+        if (!cancelled) {
+          setOrders(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        if (!cancelled) setOrders([]);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filteredOrders = useMemo(() => {
@@ -313,17 +269,17 @@ export default function FeedPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start sm:items-center justify-center p-3 sm:p-4"
             onClick={() => setSelectedOrder(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.95, opacity: 0, y: 16 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              exit={{ scale: 0.95, opacity: 0, y: 16 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[calc(100vh-1.5rem)] sm:max-h-[90vh] overflow-y-auto"
             >
-              <div className="p-6 sm:p-8">
+              <div className="p-4 sm:p-6">
                 <div className="flex justify-between items-start mb-6">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-3 flex-wrap">

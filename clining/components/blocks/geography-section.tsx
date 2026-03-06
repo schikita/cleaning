@@ -62,19 +62,19 @@ export function GeographySection() {
 
   return (
     <section
-      className="py-24 sm:py-32 bg-[#f8f9fb]"
+      className="py-24 sm:py-32 bg-[var(--warm-white)] dark:bg-[#0f1412]"
       id="cities"
       aria-label="География"
     >
       <div className="container mx-auto px-4 sm:px-6">
         <AnimateOnScroll className="text-center mb-14">
-          <span className="inline-block text-sm font-semibold tracking-widest uppercase text-[#00d2ff] mb-4">
+          <span className="inline-block text-sm font-semibold tracking-widest uppercase text-[var(--brand)] dark:text-[var(--primary)] mb-4">
             География
           </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-5">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--ink)] dark:text-white mb-5">
             Работаем по всей Беларуси
           </h2>
-          <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+          <p className="text-lg text-[var(--ink-muted)] dark:text-zinc-400 max-w-2xl mx-auto">
             Клининговые услуги доступны во всех областных центрах и&nbsp;крупных
             городах страны
           </p>
@@ -95,22 +95,22 @@ export function GeographySection() {
                     cities: city.cities,
                   });
                 }}
-                className={`group block w-full text-center p-5 sm:p-6 rounded-2xl border transition-all duration-300 hover:-translate-y-1 ${
+                className={`group block w-full text-center p-5 sm:p-6 rounded-2xl border transition-all duration-500 ease-out hover:-translate-y-1 ${
                   city.featured
-                    ? "bg-gradient-to-br from-[#00d2ff]/[0.06] to-[#7253df]/[0.06] border-[#00d2ff]/20 hover:border-[#00d2ff]/40 hover:shadow-lg hover:shadow-[#00d2ff]/[0.08]"
-                    : "bg-white border-slate-100 hover:border-slate-200 hover:shadow-lg hover:shadow-slate-100"
+                    ? "bg-[var(--accent)] dark:bg-white/5 border-[var(--brand)]/30 dark:border-[var(--primary)]/30 hover:border-[var(--brand)]/50 hover:shadow-lg"
+                    : "bg-[var(--warm-white)] dark:bg-[#1a211e] border-[var(--border)] dark:border-white/10 hover:border-[var(--brand)]/20 hover:shadow-lg"
                 }`}
               >
                 <span
                   className={`block text-lg font-bold mb-1 transition-colors ${
                     city.featured
-                      ? "text-[#00d2ff]"
-                      : "text-slate-900 group-hover:text-[#00d2ff]"
+                      ? "text-[var(--brand)] dark:text-[var(--primary)]"
+                      : "text-[var(--ink)] dark:text-white group-hover:text-[var(--brand)] dark:group-hover:text-[var(--primary)]"
                   }`}
                 >
                   {city.name}
                 </span>
-                <span className="text-xs text-slate-400">{city.count}</span>
+                <span className="text-xs text-[var(--ink-muted)] dark:text-zinc-500">{city.count}</span>
               </button>
             </AnimateOnScroll>
           ))}

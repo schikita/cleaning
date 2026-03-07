@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import path from "path";
 
+/** Не кэшировать: всегда читать с диска (важно после замены в админке). */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * Отдаёт текущую фавиконку с диска при каждом запросе (без кэша).
  * Так фавиконка всегда актуальна после замены в админке, в т.ч. в Docker.

@@ -72,6 +72,8 @@ services:
       - AUTH_SECRET=change-this-in-production-min-32-chars
       - AUTH_URL=http://localhost:3000
       - BACKEND_URL=http://backend:8000
+    volumes:
+      - frontend_public:/app/public
     depends_on:
       backend:
         condition: service_healthy
@@ -86,3 +88,4 @@ volumes:
   postgres_data:
   redis_data:
   avatars_data:
+  frontend_public:

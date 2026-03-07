@@ -17,46 +17,37 @@ async def lifespan(app: FastAPI):
     """Create tables and run migrations on startup."""
     import app.models  # noqa: F401 - register models before create_all
     Base.metadata.create_all(bind=engine)
-    # Add password_hash column if missing (existing DBs)
+    # Миграции для существующих БД (добавление колонок при необходимости)
     from sqlalchemy import text
     with engine.connect() as conn:
-        if engine.url.get_backend_name() == "postgresql":
-            conn.execute(text("""
-                DO $$
-                BEGIN
-                    IF NOT EXISTS (
-                        SELECT 1 FROM information_schema.columns
-                        WHERE table_name='users' AND column_name='password_hash'
-                    ) THEN
-                        ALTER TABLE users ADD COLUMN password_hash VARCHAR(255);
-                    END IF;
-                    IF NOT EXISTS (
-                        SELECT 1 FROM information_schema.columns
-                        WHERE table_name='orders' AND column_name='performer_id'
-                    ) THEN
-                        ALTER TABLE orders ADD COLUMN performer_id VARCHAR(36) REFERENCES users(id);
-                    END IF;
-                    IF NOT EXISTS (
-                        SELECT 1 FROM information_schema.columns
-                        WHERE table_name='users' AND column_name='phone'
-                    ) THEN
-                        ALTER TABLE users ADD COLUMN phone VARCHAR(50);
-                        ALTER TABLE users ADD COLUMN city VARCHAR(100);
-                        ALTER TABLE users ADD COLUMN bio TEXT;
-                        ALTER TABLE users ADD COLUMN services JSONB;
-                        ALTER TABLE users ADD COLUMN badges JSONB;
-                    END IF;
-                END $$;
-            """))
-            conn.commit()
-        elif engine.url.get_backend_name() == "sqlite":
-            for col in ["phone", "city", "bio", "services", "badges"]:
-                cur = conn.execute(text(
-                    "SELECT 1 FROM pragma_table_info('users') WHERE name=:n"
-                ), {"n": col})
-                if cur.fetchone() is None:
-                    conn.execute(text(f"ALTER TABLE users ADD COLUMN {col} TEXT"))
-                    conn.commit()
+        conn.execute(text("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name='users' AND column_name='password_hash'
+                ) THEN
+                    ALTER TABLE users ADD COLUMN password_hash VARCHAR(255);
+                END IF;
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name='orders' AND column_name='performer_id'
+                ) THEN
+                    ALTER TABLE orders ADD COLUMN performer_id VARCHAR(36) REFERENCES users(id);
+                END IF;
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name='users' AND column_name='phone'
+                ) THEN
+                    ALTER TABLE users ADD COLUMN phone VARCHAR(50);
+                    ALTER TABLE users ADD COLUMN city VARCHAR(100);
+                    ALTER TABLE users ADD COLUMN bio TEXT;
+                    ALTER TABLE users ADD COLUMN services JSONB;
+                    ALTER TABLE users ADD COLUMN badges JSONB;
+                END IF;
+            END $$;
+        """))
+        conn.commit()
     yield
 
 

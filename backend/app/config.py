@@ -16,10 +16,10 @@ class Settings:
     API_V1_PREFIX: str = "/api/v1"
     DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
 
-    # Database
+    # Database (PostgreSQL)
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
-        "sqlite:///./app.db"
+        "postgresql://cleaning:cleaning_secret@localhost:5433/cleaning_db",
     )
 
     # Redis

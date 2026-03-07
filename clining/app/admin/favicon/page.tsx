@@ -11,8 +11,9 @@ export default function AdminFaviconPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const faviconUrl = "/favicon.ico";
-  const cacheBust = `?t=${Date.now()}`;
+  const [faviconCacheBust, setFaviconCacheBust] = useState(() => Date.now());
+  // Берём фавиконку через API (читается с диска без кэша), иначе после замены может показываться старая
+  const faviconUrl = "/api/favicon";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,13 +29,30 @@ export default function AdminFaviconPage() {
       const fd = new FormData();
       fd.append("favicon", file);
       const res = await fetch("/api/admin/favicon", { method: "POST", body: fd });
-      const data = await res.json();
+      const text = await res.text();
+      let data: { error?: string; message?: string } = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        setError(res.status === 403 ? "Доступ только для администратора" : `Ошибка ${res.status}`);
+        return;
+      }
       if (!res.ok) {
-        setError(data.error ?? "Ошибка загрузки");
+        setError(data.error ?? (res.status === 403 ? "Доступ только для администратора" : "Ошибка загрузки"));
         return;
       }
       setSuccess(data.message ?? "Фавиконка обновлена");
       setPreview(URL.createObjectURL(file));
+      const bust = Date.now();
+      setFaviconCacheBust(bust);
+      // Обновить иконку во вкладке браузера, чтобы не показывала кэш
+      const q = `?t=${bust}`;
+      document.querySelectorAll('link[rel="icon"]').forEach((el) => {
+        const link = el as HTMLLinkElement;
+        if (link.href.includes("favicon")) link.href = `/api/favicon${q}`;
+      });
+      const shortcut = document.querySelector('link[rel="shortcut icon"]') as HTMLLinkElement | null;
+      if (shortcut) shortcut.href = `/api/favicon${q}`;
       if (inputRef.current) inputRef.current.value = "";
     } catch {
       setError("Ошибка сети");
@@ -69,7 +87,7 @@ export default function AdminFaviconPage() {
                 ) : (
                   <>
                     <img
-                      src={`${faviconUrl}${cacheBust}`}
+                      src={`${faviconUrl}?t=${faviconCacheBust}`}
                       alt=""
                       className="w-8 h-8 object-contain"
                       onError={(e) => {

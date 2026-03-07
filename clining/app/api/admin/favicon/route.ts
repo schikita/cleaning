@@ -43,17 +43,17 @@ export async function POST(request: Request) {
   }
 
   const publicDir = path.join(process.cwd(), "public");
-  const filename = isIco ? "favicon.ico" : "favicon.png";
-  const filepath = path.join(publicDir, filename);
 
   try {
     await mkdir(publicDir, { recursive: true });
     const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filepath, buffer);
+    // Пишем в оба имени, чтобы и .ico (вкладка браузера), и .png (страница) показывали новую иконку
+    await writeFile(path.join(publicDir, "favicon.ico"), buffer);
+    await writeFile(path.join(publicDir, "favicon.png"), buffer);
     return NextResponse.json({
       success: true,
-      path: `/${filename}`,
-      message: `Фавиконка сохранена как ${filename}`,
+      path: "/favicon.ico",
+      message: "Фавиконка сохранена",
     });
   } catch (e) {
     console.error("Favicon upload error:", e);

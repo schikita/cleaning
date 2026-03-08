@@ -38,10 +38,27 @@ class OrderResponse(OrderBase):
     id: str
     client_id: str
     client: Optional[UserResponse] = None
+    performer_id: Optional[str] = None
+    performer: Optional[UserResponse] = None
     responses_count: int = 0
     status: str = "open"
+    payment_status: str = "pending"
+    payment_amount: Optional[float] = None
+    payment_completed_at: Optional[datetime] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class OrderResponseItem(BaseModel):
+    """Single performer response to an order."""
+    id: str
+    order_id: str
+    performer_id: str
+    performer: Optional[UserResponse] = None
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useSession, signIn } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CleaningFilters } from "@/components/performer/CleaningFilters";
 import { OrderCardSkeleton } from "@/components/performer/OrderCardSkeleton";
@@ -39,6 +40,10 @@ const serviceLabels: Record<string, string> = {
 };
 
 export default function FeedPage() {
+  const { status } = useSession();
+  const [respondLoading, setRespondLoading] = useState<string | null>(null);
+  const [respondError, setRespondError] = useState<string | null>(null);
+
   const [filters, setFilters] = useState<Filters>({
     city: "Все города",
     serviceType: "all",
@@ -100,6 +105,35 @@ export default function FeedPage() {
       );
     });
   }, [filters, orders]);
+
+  const handleRespond = async (orderId: string) => {
+    if (status === "unauthenticated") {
+      await signIn(undefined, { callbackUrl: "/performer/feed" });
+      return;
+    }
+    setRespondError(null);
+    setRespondLoading(orderId);
+    try {
+      const res = await fetch(`/api/orders/${orderId}/respond`, {
+        method: "POST",
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setRespondError(data.error ?? "Не удалось откликнуться");
+        return;
+      }
+      setSelectedOrder(null);
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId ? { ...o, responsesCount: o.responsesCount + 1 } : o,
+        ),
+      );
+    } catch {
+      setRespondError("Не удалось откликнуться на заказ");
+    } finally {
+      setRespondLoading(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -277,7 +311,10 @@ export default function FeedPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start sm:items-center justify-center p-3 sm:p-4"
-            onClick={() => setSelectedOrder(null)}
+            onClick={() => {
+              setSelectedOrder(null);
+              setRespondError(null);
+            }}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 16 }}
@@ -379,9 +416,20 @@ export default function FeedPage() {
                     </div>
                   </div>
 
+                  {respondError && (
+                    <p className="text-sm text-red-600 dark:text-red-400 mb-2">
+                      {respondError}
+                    </p>
+                  )}
                   <div className="flex gap-3">
-                    <button className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-4 rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/25 transition-all transform hover:-translate-y-0.5">
-                      Откликнуться на заказ
+                    <button
+                      onClick={() => selectedOrder && handleRespond(selectedOrder.id)}
+                      disabled={!!respondLoading}
+                      className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-4 rounded-xl font-semibold hover:shadow-lg hover:shadow-cyan-500/25 transition-all transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                      {respondLoading === selectedOrder?.id
+                        ? "Отправка..."
+                        : "Откликнуться на заказ"}
                     </button>
                     <button className="px-6 py-4 border-2 border-slate-200 dark:border-slate-600 rounded-xl font-semibold text-slate-700 dark:text-slate-300 hover:border-cyan-500 dark:hover:border-cyan-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
                       <svg

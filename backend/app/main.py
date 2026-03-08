@@ -45,6 +45,25 @@ async def lifespan(app: FastAPI):
                     ALTER TABLE users ADD COLUMN services JSONB;
                     ALTER TABLE users ADD COLUMN badges JSONB;
                 END IF;
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.tables
+                    WHERE table_name='order_responses'
+                ) THEN
+                    CREATE TABLE order_responses (
+                        id VARCHAR(36) PRIMARY KEY,
+                        order_id VARCHAR(36) NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+                        performer_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        created_at TIMESTAMPTZ DEFAULT NOW()
+                    );
+                END IF;
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name='orders' AND column_name='payment_status'
+                ) THEN
+                    ALTER TABLE orders ADD COLUMN payment_status VARCHAR(20) DEFAULT 'pending';
+                    ALTER TABLE orders ADD COLUMN payment_amount FLOAT;
+                    ALTER TABLE orders ADD COLUMN payment_completed_at TIMESTAMPTZ;
+                END IF;
             END $$;
         """))
         conn.commit()

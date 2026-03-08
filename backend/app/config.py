@@ -27,6 +27,8 @@ class Settings:
 
     # Avatar storage
     AVATARS_DIR: str = os.getenv("AVATARS_DIR", "/app/data/avatars")
+    # Favicon (для замены через Swagger /docs)
+    FAVICON_DIR: str = os.getenv("FAVICON_DIR", "/app/data/favicon")
     API_BASE_URL: str = os.getenv("API_BASE_URL", "http://localhost:8000")
 
     # CORS

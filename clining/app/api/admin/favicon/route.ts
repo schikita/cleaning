@@ -5,6 +5,10 @@ import path from "path";
 
 const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
 
+/**
+ * Загрузка фавиконки: при наличии BACKEND_URL — на бэкенд (единый источник),
+ * иначе — в локальный public (для dev без Docker).
+ */
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user) {
@@ -42,12 +46,41 @@ export async function POST(request: Request) {
     );
   }
 
-  const publicDir = path.join(process.cwd(), "public");
+  const backendUrl = process.env.BACKEND_URL;
+  if (backendUrl) {
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const res = await fetch(`${backendUrl.replace(/\/$/, "")}/api/v1/favicon`, {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        return NextResponse.json(
+          { error: (data as { detail?: string })?.detail ?? "Ошибка бэкенда" },
+          { status: res.status }
+        );
+      }
+      return NextResponse.json({
+        success: true,
+        path: "/favicon.ico",
+        message: "Фавиконка сохранена",
+      });
+    } catch (e) {
+      console.error("Favicon upload error:", e);
+      return NextResponse.json(
+        { error: "Не удалось сохранить файл" },
+        { status: 500 }
+      );
+    }
+  }
 
+  // Fallback: сохранить в локальный public (dev без Docker)
+  const publicDir = path.join(process.cwd(), "public");
   try {
     await mkdir(publicDir, { recursive: true });
     const buffer = Buffer.from(await file.arrayBuffer());
-    // Пишем в оба имени, чтобы и .ico (вкладка браузера), и .png (страница) показывали новую иконку
     await writeFile(path.join(publicDir, "favicon.ico"), buffer);
     await writeFile(path.join(publicDir, "favicon.png"), buffer);
     return NextResponse.json({

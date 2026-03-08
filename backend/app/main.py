@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
 from app.database import engine, Base
-from app.routers import auth, health, orders, reviews, users
+from app.routers import auth, favicon, health, orders, reviews, users
 
 
 @asynccontextmanager
@@ -72,11 +72,17 @@ avatars_dir = Path(settings.AVATARS_DIR)
 avatars_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/static/avatars", StaticFiles(directory=str(avatars_dir)), name="avatars")
 
+# Favicon (загрузка через Swagger → отдача по /static/favicon/...)
+favicon_dir = Path(settings.FAVICON_DIR)
+favicon_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/static/favicon", StaticFiles(directory=str(favicon_dir)), name="favicon")
+
 app.include_router(health.router)
 app.include_router(auth.router, prefix=settings.API_V1_PREFIX)
 app.include_router(users.router, prefix=settings.API_V1_PREFIX)
 app.include_router(orders.router, prefix=settings.API_V1_PREFIX)
 app.include_router(reviews.router, prefix=settings.API_V1_PREFIX)
+app.include_router(favicon.router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/")

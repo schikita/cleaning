@@ -6,32 +6,62 @@ import path from "path";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const NO_CACHE = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+  "Pragma": "no-cache",
+};
+
 /**
- * Отдаёт текущую фавиконку с диска при каждом запросе (без кэша).
- * Так фавиконка всегда актуальна после замены в админке, в т.ч. в Docker.
+ * Отдаёт фавиконку: сначала с бэкенда (единый источник для админки и Swagger),
+ * при 404 — из локального public (fallback).
  */
 export async function GET() {
-  const publicDir = path.join(process.cwd(), "public");
-  let buffer: Buffer;
-  let contentType: string;
+  const backendUrl = process.env.BACKEND_URL;
+  if (backendUrl) {
+    try {
+      const res = await fetch(`${backendUrl.replace(/\/$/, "")}/static/favicon/favicon.ico`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const buf = await res.arrayBuffer();
+        return new NextResponse(buf, {
+          headers: {
+            "Content-Type": "image/x-icon",
+            ...NO_CACHE,
+          },
+        });
+      }
+      const resPng = await fetch(`${backendUrl.replace(/\/$/, "")}/static/favicon/favicon.png`, {
+        cache: "no-store",
+      });
+      if (resPng.ok) {
+        const buf = await resPng.arrayBuffer();
+        return new NextResponse(buf, {
+          headers: {
+            "Content-Type": "image/png",
+            ...NO_CACHE,
+          },
+        });
+      }
+    } catch {
+      /* fallback to local */
+    }
+  }
 
+  const publicDir = path.join(process.cwd(), "public");
   try {
-    buffer = await readFile(path.join(publicDir, "favicon.ico"));
-    contentType = "image/x-icon";
+    const buffer = await readFile(path.join(publicDir, "favicon.ico"));
+    return new NextResponse(new Uint8Array(buffer), {
+      headers: { "Content-Type": "image/x-icon", ...NO_CACHE },
+    });
   } catch {
     try {
-      buffer = await readFile(path.join(publicDir, "favicon.png"));
-      contentType = "image/png";
+      const buffer = await readFile(path.join(publicDir, "favicon.png"));
+      return new NextResponse(new Uint8Array(buffer), {
+        headers: { "Content-Type": "image/png", ...NO_CACHE },
+      });
     } catch {
       return new NextResponse(null, { status: 404 });
     }
   }
-
-  return new NextResponse(new Uint8Array(buffer), {
-    headers: {
-      "Content-Type": contentType,
-      "Cache-Control": "no-store, no-cache, must-revalidate",
-      "Pragma": "no-cache",
-    },
-  });
 }

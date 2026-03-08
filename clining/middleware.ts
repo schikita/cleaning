@@ -8,6 +8,8 @@ export default auth((req) => {
   const protectedPaths = [
     "/performer/dashboard",
     "/performer/profile",
+    "/performer/orders",
+    "/performer/order",
     "/client/dashboard",
     "/client/profile",
   ];

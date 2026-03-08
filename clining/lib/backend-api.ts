@@ -19,7 +19,7 @@ export async function fetchOrderById(orderId: string): Promise<{
   date: string | null;
   status: string;
   client_id: string;
-  client?: { name: string; rating?: number } | null;
+  client?: { name: string; email?: string; phone?: string; rating?: number } | null;
   responses_count?: number;
   created_at: string | null;
   updated_at?: string | null;
@@ -76,8 +76,14 @@ export async function fetchPerformerOrders(performerId: string): Promise<
   Array<{
     id: string;
     title: string;
+    description?: string | null;
+    address: string;
+    city: string;
+    date: string | null;
     status: string;
     budget: number | null;
+    client?: { name: string; email?: string; phone?: string } | null;
+    created_at: string | null;
   }>
 > {
   const base = getBackendUrl();

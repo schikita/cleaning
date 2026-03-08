@@ -82,6 +82,11 @@ export default async function PerformerDashboard() {
             <Link href="/performer/profile">
               <Button variant="outline">Профиль</Button>
             </Link>
+            <Link href="/performer/orders">
+              <Button variant="outline">
+                Мои заказы{activeCount > 0 ? ` (${activeCount})` : ""}
+              </Button>
+            </Link>
             <Link href="/performer/feed">
               <Button>Найти заказы</Button>
             </Link>

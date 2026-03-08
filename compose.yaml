@@ -44,7 +44,7 @@ services:
       - DEBUG=false
       - DATABASE_URL=postgresql://cleaning:cleaning_secret@postgres:5432/cleaning_db
       - REDIS_URL=redis://redis:6379/0
-      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://frontend:3000
+      - CORS_ORIGINS=http://localhost:3007,http://127.0.0.1:3007,http://frontend:3000
       - API_BASE_URL=http://localhost:8000
     volumes:
       - avatars_data:/app/data
@@ -66,11 +66,11 @@ services:
       dockerfile: Dockerfile
     container_name: cleaning-frontend
     ports:
-      - "3000:3000"
+      - "3007:3000"
     environment:
       - NODE_ENV=production
       - AUTH_SECRET=change-this-in-production-min-32-chars
-      - AUTH_URL=http://localhost:3000
+      - AUTH_URL=http://localhost:3007
       - BACKEND_URL=http://backend:8000
     volumes:
       - frontend_public:/app/public

@@ -155,16 +155,29 @@ export default function OrderWizard() {
 
   async function submit() {
     if (submitting) return;
+    if (!session?.user?.id) {
+      router.push(`/login?callbackUrl=${encodeURIComponent("/client/order/create")}`);
+      return;
+    }
     setSubmitting(true);
     try {
-      // eslint-disable-next-line no-console
-      console.log("[OrderWizard] submit payload", draft);
+      const res = await fetch("/api/orders/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(draft),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert((data as { error?: string })?.error ?? "Ошибка отправки заявки");
+        return;
+      }
       alert("Спасибо! Заявка отправлена. Мы скоро с вами свяжемся.");
       try {
         localStorage.removeItem(STORAGE_KEY);
       } catch {}
       setDraft(DEFAULT_DRAFT);
       setStepIndex(0);
+      router.push("/client/dashboard");
     } finally {
       setSubmitting(false);
     }

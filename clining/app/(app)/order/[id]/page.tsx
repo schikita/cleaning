@@ -72,12 +72,12 @@ export default async function OrderDetailPage({
                       {order.title}
                     </CardTitle>
                   </div>
-                  <div className="text-right flex-shrink-0">
+                  <div className="text-right shrink-0">
                     <div className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">
-                      {order.budget} BYN
+                      {order.budget != null ? `${order.budget} BYN` : "Договорная"}
                     </div>
                     <div className="text-xs text-slate-400">
-                      {order.responsesCount} откликов
+                      {(order.responses_count ?? 0)} откликов
                     </div>
                   </div>
                 </div>
@@ -89,44 +89,30 @@ export default async function OrderDetailPage({
                       Описание
                     </h3>
                     <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {order.description}
+                      {order.description || "—"}
                     </p>
                   </div>
-
-                  {order.extras.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                        Дополнительно
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {order.extras.map((extra) => (
-                          <span
-                            key={extra}
-                            className="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full text-sm"
-                          >
-                            {extra}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
                     <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                       <MapPin className="w-4 h-4 text-slate-400" />
                       {order.city}, {order.address}
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                      <Calendar className="w-4 h-4 text-slate-400" />
-                      {new Date(order.date).toLocaleDateString("ru-RU")}
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                      <Clock className="w-4 h-4 text-slate-400" />
-                      от {order.timeFrom}
-                    </div>
+                    {order.date && (
+                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                        <Calendar className="w-4 h-4 text-slate-400" />
+                        {new Date(order.date).toLocaleDateString("ru-RU")}
+                      </div>
+                    )}
+                    {order.date && (
+                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                        <Clock className="w-4 h-4 text-slate-400" />
+                        {new Date(order.date).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                       <User className="w-4 h-4 text-slate-400" />
-                      {order.service}
+                      {serviceLabel}
                     </div>
                   </div>
                 </div>
@@ -146,16 +132,18 @@ export default async function OrderDetailPage({
               <CardContent>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold text-lg">
-                    {order.client.name[0]}
+                    {(order.client?.name ?? "К")[0]}
                   </div>
                   <div>
                     <div className="font-semibold text-slate-900 dark:text-white">
-                      {order.client.name}
+                      {order.client?.name ?? "Клиент"}
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-slate-500">
-                      <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                      {order.client.rating} · {order.client.ordersCount} заказов
-                    </div>
+                    {(order.client?.rating ?? 0) > 0 && (
+                      <div className="flex items-center gap-1 text-sm text-slate-500">
+                        <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                        {order.client?.rating}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <Button className="w-full gap-2 bg-cyan-600 hover:bg-cyan-700">
@@ -168,10 +156,12 @@ export default async function OrderDetailPage({
             {/* Order info */}
             <Card className="border-slate-200 dark:border-slate-700 dark:bg-slate-800">
               <CardContent className="p-4">
-                <div className="text-sm text-slate-500 dark:text-slate-400">
-                  Заказ создан:{" "}
-                  {new Date(order.createdAt).toLocaleDateString("ru-RU")}
-                </div>
+                {order.created_at && (
+                  <div className="text-sm text-slate-500 dark:text-slate-400">
+                    Заказ создан:{" "}
+                    {new Date(order.created_at).toLocaleDateString("ru-RU")}
+                  </div>
+                )}
                 <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                   ID: #{order.id}
                 </div>

@@ -60,7 +60,12 @@ def create_order(order_in: OrderCreate, db: Session = Depends(get_db)):
 @router.get("/{order_id}", response_model=OrderResponse)
 def get_order(order_id: str, db: Session = Depends(get_db)):
     """Get order by ID."""
-    order = db.query(Order).filter(Order.id == order_id).first()
+    order = (
+        db.query(Order)
+        .options(joinedload(Order.client))
+        .filter(Order.id == order_id)
+        .first()
+    )
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order

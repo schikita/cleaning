@@ -199,10 +199,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   secret: authSecret,
   trustHost: true,
-  // Явный URL — иначе placeholder "ВАШ_СЕРВЕР" даёт xn--_-7sbfcob9ece2e и ERR_NAME_NOT_RESOLVED
-  ...(process.env.AUTH_URL && !process.env.AUTH_URL.includes("ВАШ") && {
-    url: process.env.AUTH_URL.replace(/\/$/, ""),
-  }),
+  // Не использовать AUTH_URL если там placeholder (ваш_сервер/ВАШ_СЕРВЕР)
+  ...(process.env.AUTH_URL &&
+    !/ваш_сервер|ВАШ_СЕРВЕР|xn--/i.test(process.env.AUTH_URL) && {
+      url: process.env.AUTH_URL.replace(/\/$/, ""),
+    }),
   pages: {
     signIn: "/login",
   },

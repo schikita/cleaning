@@ -6,3 +6,8 @@ node_modules
 *.md
 Dockerfile
 .dockerignore
+coverage
+.turbo
+*.log
+*.tsbuildinfo
+.eslintcache

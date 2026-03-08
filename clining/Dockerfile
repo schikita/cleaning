@@ -1,10 +1,11 @@
 FROM node:20-alpine AS base
 
-# Dependencies
+# Dependencies (BuildKit cache ускоряет повторные сборки)
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm \
+  npm ci
 
 # Build
 FROM base AS builder
@@ -13,7 +14,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN npm run build
+RUN --mount=type=cache,target=/app/.next/cache \
+  npm run build
 
 # Runner
 FROM base AS runner

@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  productionBrowserSourceMaps: false, // ускоряет сборку
   async rewrites() {
     return [
       { source: "/favicon.ico", destination: "/api/favicon" },

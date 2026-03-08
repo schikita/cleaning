@@ -40,14 +40,14 @@ services:
       dockerfile: Dockerfile
     container_name: cleaning-backend
     ports:
-      - "8001:8000"
+      - "8005:8000"
     env_file: .env
     environment:
       - DEBUG=${DEBUG:-false}
       - DATABASE_URL=${DATABASE_URL:-postgresql://cleaning:cleaning_secret@postgres:5432/cleaning_db}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3007,http://127.0.0.1:3007,http://frontend:3000}
-      - API_BASE_URL=${API_BASE_URL:-http://localhost:8000}
+      - API_BASE_URL=${API_BASE_URL:-http://localhost:8005}
     volumes:
       - avatars_data:/app/data
     depends_on:

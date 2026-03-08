@@ -23,6 +23,8 @@ interface Filters {
   city: string;
   serviceType: string;
   priceRange: [number, number];
+  includeNegotiable: boolean;
+  showAll: boolean;
   date: string;
   urgent: boolean;
 }
@@ -41,6 +43,8 @@ export default function FeedPage() {
     city: "Все города",
     serviceType: "all",
     priceRange: [50, 2000],
+    includeNegotiable: true,
+    showAll: false,
     date: "",
     urgent: false,
   });
@@ -78,9 +82,12 @@ export default function FeedPage() {
       const matchesService =
         filters.serviceType === "all" ||
         order.serviceType === filters.serviceType;
-      const matchesPrice =
-        order.budget >= filters.priceRange[0] &&
-        order.budget <= filters.priceRange[1];
+      const matchesPrice = filters.showAll
+        ? true
+        : order.budget === 0
+          ? filters.includeNegotiable
+          : order.budget >= filters.priceRange[0] &&
+            order.budget <= filters.priceRange[1];
       const matchesDate = !filters.date || order.date === filters.date;
       const matchesUrgent = !filters.urgent || order.urgent;
 
@@ -169,10 +176,10 @@ export default function FeedPage() {
                               </div>
                               <div className="text-right ml-4 flex-shrink-0">
                                 <span className="text-xl sm:text-2xl font-bold text-cyan-600 dark:text-cyan-400 block">
-                                  {order.budget}
+                                  {order.budget === 0 ? "Договорная" : order.budget}
                                 </span>
                                 <span className="text-xs text-slate-400 dark:text-slate-500">
-                                  BYN
+                                  {order.budget === 0 ? "цена" : "BYN"}
                                 </span>
                               </div>
                             </div>
@@ -335,8 +342,9 @@ export default function FeedPage() {
                         Бюджет
                       </span>
                       <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                        {selectedOrder.budget}{" "}
-                        <span className="text-lg">BYN</span>
+                        {selectedOrder.budget === 0
+                          ? "Договорная"
+                          : `${selectedOrder.budget} BYN`}
                       </p>
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl">

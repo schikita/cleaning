@@ -1,6 +1,6 @@
 """Orders router."""
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.deps import get_db
 from app.models.order import Order
@@ -21,7 +21,7 @@ def list_orders(
     db: Session = Depends(get_db),
 ):
     """List orders with optional filters."""
-    q = db.query(Order)
+    q = db.query(Order).options(joinedload(Order.client))
     if status:
         q = q.filter(Order.status == status)
     if city:

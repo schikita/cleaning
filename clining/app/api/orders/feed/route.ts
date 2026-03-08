@@ -2,10 +2,19 @@ import { NextResponse } from "next/server";
 
 const BACKEND_URL = process.env.BACKEND_URL;
 
+const CATEGORY_TO_SERVICE: Record<string, string> = {
+  general: "deep",
+  maintenance: "regular",
+  renovation: "repair",
+  furniture: "carpet",
+  windows: "windows",
+};
+
 type BackendOrder = {
   id: string;
   title: string;
   description?: string | null;
+  category?: string;
   budget: number | null;
   city: string;
   date?: string | null;
@@ -34,8 +43,8 @@ export async function GET() {
       id: o.id,
       title: o.title,
       description: o.description ?? "",
-      category: "Клининг",
-      serviceType: "regular" as const,
+      category: o.category ?? "general",
+      serviceType: CATEGORY_TO_SERVICE[o.category ?? ""] ?? "regular",
       budget: o.budget ?? 0,
       city: o.city,
       date: (o.date || o.created_at || null) as string | null,

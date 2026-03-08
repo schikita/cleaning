@@ -12,51 +12,23 @@ import {
   Star,
   MessageSquare,
 } from "lucide-react";
+import { fetchOrderById } from "@/lib/backend-api";
+import { SERVICE_META } from "@/components/order/flows";
 
-// Mock data - replace with real API call
-const mockOrders: Record<
-  string,
-  {
-    id: string;
-    title: string;
-    description: string;
-    service: string;
-    status: "active" | "in_progress" | "completed" | "cancelled";
-    budget: number;
-    city: string;
-    address: string;
-    date: string;
-    timeFrom: string;
-    client: { name: string; rating: number; ordersCount: number };
-    responsesCount: number;
-    createdAt: string;
-    extras: string[];
-  }
-> = {
-  "1": {
-    id: "1",
-    title: "Генеральная уборка 3-комнатной квартиры",
-    description:
-      "После ремонта, удаление строительной пыли. Мытье окон, балкон, кухня, 2 санузла. Квартира 85 м² на пр. Независимости. Нужна качественная уборка с использованием профессиональных средств.",
-    service: "Генеральная уборка",
-    status: "active",
-    budget: 450,
-    city: "Минск",
-    address: "пр. Независимости, 123",
-    date: "2025-02-25",
-    timeFrom: "10:00",
-    client: { name: "Анна К.", rating: 4.9, ordersCount: 8 },
-    responsesCount: 5,
-    createdAt: "2025-02-20",
-    extras: ["Мойка окон", "Уборка балкона", "Чистка кухни"],
-  },
+const categoryLabel: Record<string, string> = {
+  general: "Генеральная уборка",
+  maintenance: "Поддерживающая уборка",
+  renovation: "Уборка после ремонта",
+  furniture: "Химчистка мебели",
+  windows: "Мойка окон",
 };
 
-const statusConfig = {
-  active: { label: "Поиск исполнителя", color: "bg-blue-100 text-blue-800" },
-  in_progress: { label: "В работе", color: "bg-yellow-100 text-yellow-800" },
-  completed: { label: "Выполнен", color: "bg-green-100 text-green-800" },
-  cancelled: { label: "Отменён", color: "bg-red-100 text-red-800" },
+const statusConfig: Record<string, { label: string; color: string }> = {
+  open: { label: "Поиск исполнителя", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
+  active: { label: "Поиск исполнителя", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
+  in_progress: { label: "В работе", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" },
+  completed: { label: "Выполнен", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" },
+  cancelled: { label: "Отменён", color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" },
 };
 
 export default async function OrderDetailPage({
@@ -65,13 +37,14 @@ export default async function OrderDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const order = mockOrders[id];
+  const order = await fetchOrderById(id);
 
   if (!order) {
     notFound();
   }
 
-  const status = statusConfig[order.status];
+  const status = statusConfig[order.status] ?? statusConfig.open;
+  const serviceLabel = categoryLabel[order.category] ?? SERVICE_META[order.category as keyof typeof SERVICE_META]?.title ?? order.category;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4">

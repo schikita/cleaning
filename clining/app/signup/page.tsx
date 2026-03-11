@@ -76,8 +76,7 @@ export default function SignupPage() {
         fd.append("avatar", avatarFile);
         await fetch("/api/user/avatar", { method: "POST", body: fd });
       }
-      const redirect = role === "performer" ? "/performer/dashboard" : "/client/dashboard";
-      router.push(redirect);
+      router.push(callbackUrl);
       router.refresh();
     } catch {
       setError("Ошибка регистрации");

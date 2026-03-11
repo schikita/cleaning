@@ -115,16 +115,6 @@ export default function OrderWizard() {
   const safeIndex = clampIndex(stepIndex, steps.length);
   const step = steps[safeIndex];
 
-  // Авторизация требуется на шаге контактов
-  useEffect(() => {
-    if (!mounted || status === "loading") return;
-    if (step?.kind === "contact" && status === "unauthenticated") {
-      router.replace(
-        `/login?callbackUrl=${encodeURIComponent("/client/order/create?step=contact")}`
-      );
-    }
-  }, [mounted, status, step?.kind, router]);
-
   useEffect(() => {
     if (!mounted) return;
     try {

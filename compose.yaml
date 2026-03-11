@@ -6,9 +6,9 @@ services:
     shm_size: 256mb
     env_file: .env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-cleaning}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cleaning_secret}
-      POSTGRES_DB: ${POSTGRES_DB:-cleaning_db}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5433:5432"
     volumes:
@@ -48,10 +48,10 @@ services:
     env_file: .env
     environment:
       - DEBUG=${DEBUG:-false}
-      - DATABASE_URL=${DATABASE_URL:-postgresql://cleaning:cleaning_secret@postgres:5432/cleaning_db}
+      - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
-      - CORS_ORIGINS=${CORS_ORIGINS:-http://185.244.50.22:3007,http://localhost:3007,http://127.0.0.1:3007,http://frontend:3000}
-      - API_BASE_URL=${API_BASE_URL:-http://185.244.50.22:8005}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      - API_BASE_URL=${API_BASE_URL}
     volumes:
       - avatars_data:/app/data
     security_opt:
@@ -78,10 +78,10 @@ services:
     env_file: .env
     environment:
       - NODE_ENV=${NODE_ENV:-production}
-      - AUTH_SECRET=${AUTH_SECRET:-change-this-in-production-min-32-chars}
-      - AUTH_URL=${AUTH_URL:-http://185.244.50.22:3007}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_URL=${AUTH_URL}
       - BACKEND_URL=${BACKEND_URL:-http://backend:8000}
-      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://185.244.50.22:3007}
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
       - NEXT_PUBLIC_COMPANY_PHONE=${NEXT_PUBLIC_COMPANY_PHONE:-}
       - NEXT_PUBLIC_COMPANY_EMAIL=${NEXT_PUBLIC_COMPANY_EMAIL:-}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}

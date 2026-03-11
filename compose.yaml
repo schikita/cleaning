@@ -13,6 +13,8 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cleaning -d cleaning_db"]
       interval: 5s
@@ -28,6 +30,8 @@ services:
       - "6380:6379"
     volumes:
       - redis_data:/data
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -50,6 +54,8 @@ services:
       - API_BASE_URL=${API_BASE_URL:-http://185.244.50.22:8005}
     volumes:
       - avatars_data:/app/data
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       postgres:
         condition: service_healthy
@@ -84,6 +90,20 @@ services:
       - YANDEX_CLIENT_SECRET=${YANDEX_CLIENT_SECRET:-}
     volumes:
       - frontend_public:/app/public
+    read_only: true
+    tmpfs:
+      - /tmp:size=100m,mode=1777
+      - /app/.next/cache:size=200m
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     depends_on:
       backend:
         condition: service_healthy

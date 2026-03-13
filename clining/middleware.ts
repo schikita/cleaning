@@ -8,8 +8,11 @@ export default auth((req) => {
   const protectedPaths = [
     "/performer/dashboard",
     "/performer/profile",
+    "/performer/orders",
+    "/performer/order",
     "/client/dashboard",
     "/client/profile",
+    "/client/order/create",
   ];
 
   const isProtected = protectedPaths.some((p) =>
@@ -18,7 +21,8 @@ export default auth((req) => {
 
   if (isProtected && !isLoggedIn) {
     const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
+    const callbackPath = pathname + req.nextUrl.search;
+    loginUrl.searchParams.set("callbackUrl", callbackPath);
     return NextResponse.redirect(loginUrl);
   }
 

@@ -7,6 +7,33 @@ function getBackendUrl(): string | null {
   return url ? url.replace(/\/$/, "") : null;
 }
 
+export async function fetchOrderById(orderId: string): Promise<{
+  id: string;
+  title: string;
+  description?: string | null;
+  category: string;
+  quality: string;
+  budget: number | null;
+  address: string;
+  city: string;
+  date: string | null;
+  status: string;
+  client_id: string;
+  client?: { name: string; email?: string; phone?: string; rating?: number } | null;
+  responses_count?: number;
+  created_at: string | null;
+  updated_at?: string | null;
+} | null> {
+  const base = getBackendUrl();
+  if (!base) return null;
+  const res = await fetch(`${base}/api/v1/orders/${encodeURIComponent(orderId)}`, {
+    next: { revalidate: 10 },
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data;
+}
+
 export async function fetchClientOrders(userId: string): Promise<
   Array<{
     id: string;
@@ -49,8 +76,14 @@ export async function fetchPerformerOrders(performerId: string): Promise<
   Array<{
     id: string;
     title: string;
+    description?: string | null;
+    address: string;
+    city: string;
+    date: string | null;
     status: string;
     budget: number | null;
+    client?: { name: string; email?: string; phone?: string } | null;
+    created_at: string | null;
   }>
 > {
   const base = getBackendUrl();

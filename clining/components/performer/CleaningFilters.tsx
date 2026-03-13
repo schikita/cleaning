@@ -17,6 +17,8 @@ interface Filters {
   city: string;
   serviceType: string;
   priceRange: [number, number];
+  includeNegotiable: boolean;
+  showAll: boolean;
   date: string;
   urgent: boolean;
 }
@@ -60,7 +62,8 @@ export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
   const activeCount = [
     filters.city !== "Все города",
     filters.serviceType !== "all",
-    filters.priceRange[0] > PRICE_MIN || filters.priceRange[1] < PRICE_MAX,
+    !filters.showAll && (filters.priceRange[0] > PRICE_MIN || filters.priceRange[1] < PRICE_MAX),
+    !filters.includeNegotiable,
     filters.date !== "",
     filters.urgent,
   ].filter(Boolean).length;
@@ -140,12 +143,45 @@ export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
         </div>
       </div>
 
-      {/* Бюджет */}
+      {/* Показать все / Бюджет */}
       <div>
-        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-          Бюджет, BYN
-        </label>
-        <div className="flex items-center gap-2">
+        <button
+          onClick={() => update("showAll", !filters.showAll)}
+          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border-2 text-sm transition-colors mb-3 ${
+            filters.showAll
+              ? "bg-cyan-50 dark:bg-cyan-900/20 border-cyan-500 text-cyan-700 dark:text-cyan-400"
+              : "border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
+          }`}
+        >
+          <span className="font-medium">Показать все заказы</span>
+          <div
+            className={`w-10 h-5 rounded-full relative transition-colors ${filters.showAll ? "bg-cyan-500" : "bg-slate-300 dark:bg-slate-600"}`}
+          >
+            <div
+              className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${filters.showAll ? "left-5" : "left-0.5"}`}
+            />
+          </div>
+        </button>
+
+        {!filters.showAll && (
+          <>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              Бюджет, BYN
+            </label>
+            <button
+              onClick={() => update("includeNegotiable", !filters.includeNegotiable)}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm mb-2 transition-colors ${
+                filters.includeNegotiable
+                  ? "bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+              }`}
+            >
+              <span>Включая договорные</span>
+              {filters.includeNegotiable && (
+                <span className="text-amber-500">✓</span>
+              )}
+            </button>
+            <div className="flex items-center gap-2">
           <div className="flex-1 flex flex-col gap-1">
             <span className="text-xs text-slate-500 dark:text-slate-400">от</span>
             <input
@@ -181,6 +217,8 @@ export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
         <div className="flex justify-between text-xs text-slate-400 mt-1.5">
           <span>{PRICE_MIN} — {PRICE_MAX}</span>
         </div>
+          </>
+        )}
       </div>
 
       {/* Дата */}
@@ -221,6 +259,8 @@ export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
               city: "Все города",
               serviceType: "all",
               priceRange: [PRICE_MIN, PRICE_MAX],
+              includeNegotiable: true,
+              showAll: false,
               date: "",
               urgent: false,
             })

@@ -5,30 +5,30 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
-from app.auth import hash_password
+from app.security import hash_password
 from app.config import get_settings
-from app.deps import get_db
+from app.deps import get_db, get_current_user
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse, UserSetPassword, UserUpdate
+from app.schemas.user import UserCreate, UserResponse, UserSetPassword, UserUpdate, UserPublic
 
 router = APIRouter(prefix="/users", tags=["Users"])
 ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 
 
-@router.get("", response_model=list[UserResponse])
+@router.get("", response_model=list[UserPublic])
 def list_users(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
 ):
-    """List all users."""
+    """List all users (public profile)."""
     users = db.query(User).offset(skip).limit(limit).all()
     return users
 
 
 @router.post("", response_model=UserResponse)
 def create_user(user_in: UserCreate, db: Session = Depends(get_db)):
-    """Create a new user."""
+    """Create a new user (Signup)."""
     existing = db.query(User).filter(User.email == user_in.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -53,9 +53,9 @@ def create_user(user_in: UserCreate, db: Session = Depends(get_db)):
     return user
 
 
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get("/{user_id}", response_model=UserPublic)
 def get_user(user_id: str, db: Session = Depends(get_db)):
-    """Get user by ID."""
+    """Get user by ID (public profile)."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -67,8 +67,12 @@ def update_user(
     user_id: str,
     user_in: UserUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    """Update user."""
+    """Update user (requires authentication)."""
+    if current_user.id != user_id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -84,8 +88,12 @@ def upload_avatar(
     user_id: str,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    """Upload avatar for user."""
+    """Upload avatar for user (requires authentication)."""
+    if current_user.id != user_id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -118,8 +126,12 @@ def set_password(
     user_id: str,
     body: UserSetPassword,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    """Set password for existing user (e.g. admin created via /docs without password)."""
+    """Set password for existing user (requires authentication)."""
+    if current_user.id != user_id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -130,8 +142,15 @@ def set_password(
 
 
 @router.delete("/{user_id}", status_code=204)
-def delete_user(user_id: str, db: Session = Depends(get_db)):
-    """Delete user."""
+def delete_user(
+    user_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Delete user (requires authentication)."""
+    if current_user.id != user_id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

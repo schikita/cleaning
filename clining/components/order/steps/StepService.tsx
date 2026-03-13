@@ -63,7 +63,6 @@ type Props = {
 export default function StepService({ draft, updateDraft, next }: Props) {
   function choose(service: ServiceId) {
     updateDraft({ service });
-    next();
   }
 
   return (

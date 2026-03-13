@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel
 
-from app.schemas.user import UserResponse
+from app.schemas.user import UserResponse, UserPublic
 
 
 class OrderBase(BaseModel):
@@ -37,7 +37,7 @@ class OrderUpdate(BaseModel):
 class OrderResponse(OrderBase):
     id: str
     client_id: str
-    client: Optional[UserResponse] = None
+    client: Optional[UserPublic] = None
     responses_count: int = 0
     status: str = "open"
     created_at: Optional[datetime] = None

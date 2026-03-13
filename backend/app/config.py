@@ -19,7 +19,7 @@ class Settings:
     # Database (PostgreSQL)
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
-        "postgresql://cleaning:cleaning_secret@localhost:5433/cleaning_db",
+        "postgresql://cleaning:cleaning_secret@localhost:5434/cleaning_db",
     )
 
     # Redis
@@ -30,6 +30,11 @@ class Settings:
     # Favicon (для замены через Swagger /docs)
     FAVICON_DIR: str = os.getenv("FAVICON_DIR", "/app/data/favicon")
     API_BASE_URL: str = os.getenv("API_BASE_URL", "http://localhost:8000")
+
+    # JWT
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-super-secret-key-change-it-in-production")
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
     # CORS
     CORS_ORIGINS: list[str] = [

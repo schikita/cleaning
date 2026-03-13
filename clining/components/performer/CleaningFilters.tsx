@@ -11,7 +11,7 @@ import {
   Sofa,
   type LucideIcon,
 } from "lucide-react";
-import { DatePickerDropdown } from "./DatePickerDropdown";
+import { DatePickerDropdown } from "@/components/ui/date-picker";
 
 interface Filters {
   city: string;
@@ -128,11 +128,10 @@ export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
             <button
               key={type.id}
               onClick={() => update("serviceType", type.id)}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
-                filters.serviceType === type.id
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${filters.serviceType === type.id
                   ? "bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 font-medium"
                   : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-              }`}
+                }`}
             >
               <type.icon className="h-4 w-4 shrink-0" aria-hidden />
               <span>{type.label}</span>
@@ -199,11 +198,10 @@ export function CleaningFilters({ filters, onChange }: CleaningFiltersProps) {
       {/* Срочно */}
       <button
         onClick={() => update("urgent", !filters.urgent)}
-        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border-2 text-sm transition-colors ${
-          filters.urgent
+        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border-2 text-sm transition-colors ${filters.urgent
             ? "bg-red-50 dark:bg-red-900/20 border-red-500 text-red-700 dark:text-red-400"
             : "border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
-        }`}
+          }`}
       >
         <span className="font-medium">Срочный заказ</span>
         <div

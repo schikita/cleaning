@@ -79,6 +79,8 @@ function useCanNext(draft: Draft, stepKind: string): boolean {
       );
     case "furniture_items":
       return draft.furniture.items.length > 0;
+    case "service":
+      return draft.service !== null;
     default:
       return true;
   }
@@ -129,7 +131,7 @@ export default function OrderWizard() {
     if (!mounted) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
-    } catch {}
+    } catch { }
   }, [draft, mounted]);
 
   useEffect(() => {
@@ -157,12 +159,10 @@ export default function OrderWizard() {
     if (submitting) return;
     setSubmitting(true);
     try {
-      // eslint-disable-next-line no-console
-      console.log("[OrderWizard] submit payload", draft);
       alert("Спасибо! Заявка отправлена. Мы скоро с вами свяжемся.");
       try {
         localStorage.removeItem(STORAGE_KEY);
-      } catch {}
+      } catch { }
       setDraft(DEFAULT_DRAFT);
       setStepIndex(0);
     } finally {
@@ -173,7 +173,6 @@ export default function OrderWizard() {
   const canNext = useCanNext(draft, step?.kind ?? "");
   const isFirstStep = safeIndex === 0;
   const isLastStep = safeIndex === steps.length - 1;
-  const isServiceStep = step?.kind === "service";
 
   if (!mounted) {
     return (
@@ -245,40 +244,36 @@ export default function OrderWizard() {
       </div>
 
       <div className={s.shell}>{renderStep()}</div>
+      <div className={s.actions}>
+        <button
+          type="button"
+          onClick={prev}
+          disabled={isFirstStep}
+          className={s.btnOutline}
+        >
+          ← Назад
+        </button>
 
-      {/* Единая навигация для всех шагов кроме выбора услуги */}
-      {!isServiceStep && (
-        <div className={s.actions}>
+        {isLastStep ? (
           <button
             type="button"
-            onClick={prev}
-            disabled={isFirstStep}
-            className={s.btnOutline}
+            onClick={submit}
+            disabled={submitting}
+            className={s.btnPrimary}
           >
-            ← Назад
+            {submitting ? "Отправка..." : "Создать заказ ✓"}
           </button>
-
-          {isLastStep ? (
-            <button
-              type="button"
-              onClick={submit}
-              disabled={submitting}
-              className={s.btnPrimary}
-            >
-              {submitting ? "Отправка..." : "Создать заказ ✓"}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={next}
-              disabled={!canNext}
-              className={s.btnPrimary}
-            >
-              Далее →
-            </button>
-          )}
-        </div>
-      )}
+        ) : (
+          <button
+            type="button"
+            onClick={next}
+            disabled={!canNext}
+            className={s.btnPrimary}
+          >
+            Далее →
+          </button>
+        )}
+      </div>
     </div>
   );
 }

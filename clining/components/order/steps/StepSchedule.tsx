@@ -3,6 +3,7 @@
 import React from "react";
 import { DEFAULT_DRAFT } from "../flows";
 import { orderStyles as s } from "../styles";
+import { DatePickerDropdown } from "@/components/ui/date-picker";
 
 type Draft = typeof DEFAULT_DRAFT;
 
@@ -35,6 +36,7 @@ function nextSlots(from: string) {
 
 export default function StepSchedule({ draft, updateDraft }: Props) {
   const sc = draft.schedule;
+  const today = new Date().toISOString().split("T")[0];
 
   function set(key: "date" | "timeFrom" | "timeTo", value: string) {
     updateDraft({ schedule: { ...sc, [key]: value } });
@@ -52,15 +54,17 @@ export default function StepSchedule({ draft, updateDraft }: Props) {
       <div className={s.stepSubtitle}>Выберите дату и удобный интервал</div>
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <label className={`${s.label} sm:col-span-1`}>
-          Дата
-          <input
-            className={s.input}
-            type="date"
-            value={sc.date}
-            onChange={(e) => set("date", e.target.value)}
-          />
-        </label>
+        <div className="sm:col-span-1">
+          <span className={s.label}>Дата</span>
+          <div className="mt-1">
+            <DatePickerDropdown
+              value={sc.date}
+              onChange={(v) => set("date", v)}
+              placeholder="Выберите дату"
+              minDate={today}
+            />
+          </div>
+        </div>
         <label className={s.label}>
           С
           <select

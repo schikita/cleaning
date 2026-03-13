@@ -51,6 +51,20 @@ class UserUpdate(BaseModel):
     badges: Optional[list[str]] = None
 
 
+class UserPublic(BaseModel):
+    """Публичный профиль пользователя (без телефона и почты для чужих глаз)."""
+    id: str
+    name: str
+    avatar: Optional[str] = None
+    role: str
+    rating: float = 0.0
+    completed_orders: int = 0
+    badges: Optional[list[str]] = None
+
+    class Config:
+        from_attributes = True
+
+
 class UserResponse(UserBase):
     id: str
     rating: float = 0.0
@@ -61,6 +75,19 @@ class UserResponse(UserBase):
     services: Optional[list[str]] = None
     badges: Optional[list[str]] = None
     created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class LoginResponse(BaseModel):
+    token: Token
+    user: UserResponse
 
     class Config:
         from_attributes = True

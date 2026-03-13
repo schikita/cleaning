@@ -1,10 +1,10 @@
-"""Favicon upload — замена фавиконки через Swagger /docs."""
 from pathlib import Path
-
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, UploadFile, Depends
 from pydantic import BaseModel
 
 from app.config import get_settings
+from app.deps import get_db, get_current_user
+from app.models.user import User
 
 router = APIRouter(prefix="/favicon", tags=["Favicon"])
 
@@ -13,6 +13,7 @@ class FaviconResponse(BaseModel):
     message: str
     path_ico: str
     path_png: str
+
 
 MAX_SIZE = 2 * 1024 * 1024  # 2 MB
 ALLOWED_TYPES = {"image/x-icon", "image/vnd.microsoft.icon", "image/png"}
@@ -25,8 +26,14 @@ ALLOWED_EXT = {".ico", ".png"}
     summary="Заменить фавиконку",
     description="Загрузите файл .ico или .png (рекомендуется 32×32 или 16×16). Сохраняется как favicon.ico и favicon.png.",
 )
-def upload_favicon(file: UploadFile | None = File(None, description="Файл .ico или .png")):
-    """Загрузить новую фавиконку. Доступно в Swagger UI (/docs)."""
+def upload_favicon(
+    file: UploadFile | None = File(None, description="Файл .ico или .png"),
+    current_user: User = Depends(get_current_user),
+):
+    """Загрузить новую фавиконку (требует прав админа)."""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Только админ может менять фавиконку")
+
     if not file or not file.filename:
         raise HTTPException(status_code=400, detail="Файл не выбран")
 

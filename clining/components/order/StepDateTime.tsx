@@ -1,7 +1,8 @@
 "use client";
 
-import { Calendar, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePickerDropdown } from "@/components/ui/date-picker";
 
 interface StepDateTimeProps {
   date: string;
@@ -40,23 +41,13 @@ export function StepDateTime({ date, time, onChange }: StepDateTimeProps) {
       {/* Дата */}
       <div>
         <div className="flex items-center gap-2 mb-4">
-          <Calendar className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
           <h3 className="font-semibold text-slate-900 dark:text-white">Дата</h3>
         </div>
-        <input
-          type="date"
-          min={today}
+        <DatePickerDropdown
           value={date}
-          onChange={(e) => onChange("date", e.target.value)}
-          className={cn(
-            "w-full px-4 py-3 rounded-xl border-2 text-lg transition-all",
-            "bg-white dark:bg-slate-800",
-            "border-slate-200 dark:border-slate-700",
-            "text-slate-900 dark:text-white",
-            "focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 dark:focus:ring-cyan-500/10",
-            "focus:outline-none",
-            "[&::-webkit-calendar-picker-indicator]:dark:invert",
-          )}
+          onChange={(v) => onChange("date", v)}
+          placeholder="Выберите дату"
+          minDate={today}
         />
       </div>
 

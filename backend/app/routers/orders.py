@@ -1,8 +1,7 @@
-"""Orders router."""
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.deps import get_db
+from app.deps import get_db, get_current_user
 from app.models.order import Order
 from app.models.user import User
 from app.schemas.order import OrderCreate, OrderResponse, OrderUpdate
@@ -20,7 +19,7 @@ def list_orders(
     performer_id: str | None = Query(None),
     db: Session = Depends(get_db),
 ):
-    """List orders with optional filters."""
+    """List orders with optional filters (public feed)."""
     q = db.query(Order)
     if status:
         q = q.filter(Order.status == status)
@@ -35,11 +34,12 @@ def list_orders(
 
 
 @router.post("", response_model=OrderResponse)
-def create_order(order_in: OrderCreate, db: Session = Depends(get_db)):
-    """Create a new order."""
-    client = db.query(User).filter(User.id == order_in.client_id).first()
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
+def create_order(
+    order_in: OrderCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Create a new order (requires authentication)."""
     order = Order(
         title=order_in.title,
         description=order_in.description,
@@ -49,7 +49,7 @@ def create_order(order_in: OrderCreate, db: Session = Depends(get_db)):
         address=order_in.address,
         city=order_in.city,
         date=order_in.date,
-        client_id=order_in.client_id,
+        client_id=current_user.id,  # Обязательно берем ID из токена
     )
     db.add(order)
     db.commit()
@@ -71,11 +71,16 @@ def update_order(
     order_id: str,
     order_in: OrderUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    """Update order."""
+    """Update order (requires ownership)."""
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    
+    if order.client_id != current_user.id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
     for key, value in order_in.model_dump(exclude_unset=True).items():
         setattr(order, key, value)
     db.commit()
@@ -84,11 +89,19 @@ def update_order(
 
 
 @router.delete("/{order_id}", status_code=204)
-def delete_order(order_id: str, db: Session = Depends(get_db)):
-    """Delete order."""
+def delete_order(
+    order_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Delete order (requires ownership)."""
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    
+    if order.client_id != current_user.id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
     db.delete(order)
     db.commit()
     return None

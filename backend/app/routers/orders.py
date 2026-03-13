@@ -2,14 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload
 
-<<<<<<< HEAD
+
 from app.deps import get_db, get_current_user
-from app.models.order import Order
-=======
-from app.deps import get_db
 from app.models.order import Order, calc_commission
 from app.models.order_response import OrderResponseModel
->>>>>>> 3e5d9bfdb5624234e7728ac66e0630680853fe46
 from app.models.user import User
 from app.schemas.order import OrderCreate, OrderResponse, OrderResponseItem, OrderUpdate
 
@@ -36,16 +32,12 @@ def list_orders(
     performer_id: str | None = Query(None),
     db: Session = Depends(get_db),
 ):
-<<<<<<< HEAD
-    """List orders with optional filters (public feed)."""
-    q = db.query(Order)
-=======
+
     """List orders with optional filters."""
     q = db.query(Order).options(
         joinedload(Order.client),
         joinedload(Order.performer),
     )
->>>>>>> 3e5d9bfdb5624234e7728ac66e0630680853fe46
     if status:
         q = q.filter(Order.status == status)
     if city:

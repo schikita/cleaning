@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { DEFAULT_DRAFT, getFlowSteps, type Draft } from "./flows";
 import { orderStyles as s } from "./styles";
 
@@ -152,18 +153,25 @@ export default function OrderWizard() {
       return;
     }
     setSubmitting(true);
+    console.log("[Wizard] Starting order submission...", draft);
     try {
       const res = await fetch("/api/orders/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(draft),
       });
-      const data = await res.json().catch(() => ({}));
+      console.log("[Wizard] API responded with status:", res.status);
+      const data = await res.json().catch((e) => {
+        console.error("[Wizard] Failed to parse JSON:", e);
+        return {};
+      });
+      console.log("[Wizard] API data:", data);
       if (!res.ok) {
-        alert((data as { error?: string })?.error ?? "Ошибка отправки заявки");
+        toast.error((data as { error?: string })?.error ?? "Ошибка отправки заявки");
+        setSubmitting(false); // Restore state on error
         return;
       }
-      alert("Спасибо! Заявка отправлена. Мы скоро с вами свяжемся.");
+      toast.success("Заявка успешно отправлена!");
       try {
         localStorage.removeItem(STORAGE_KEY);
       } catch { }

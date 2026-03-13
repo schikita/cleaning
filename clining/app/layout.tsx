@@ -4,6 +4,7 @@ import { ThemeProvider } from "../components/theme-provider";
 import { SessionProvider } from "../components/client/SessionProvider";
 import { AvatarProvider } from "../context/AvatarContext";
 import { CookieBanner } from "../components/client/CookieBanner";
+import { Toaster } from "../components/ui/sonner";
 
 export const metadata = {
   title: {
@@ -32,6 +33,7 @@ export default function RootLayout({
             <AvatarProvider>
               <div className="flex-1 flex flex-col">{children}</div>
               <CookieBanner />
+              <Toaster />
             </AvatarProvider>
           </SessionProvider>
         </ThemeProvider>

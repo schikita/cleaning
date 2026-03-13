@@ -93,14 +93,23 @@ export async function POST(request: Request) {
     client_id: session.user.id,
   };
 
+  const accessToken = (session as any).accessToken;
+  console.log(`[Proxy] Creating order for user ${session.user.id}. Token present: ${!!accessToken}`);
+  console.log(`[Proxy] Backend URL: ${backendUrl}`);
+
   try {
     const res = await fetch(`${backendUrl.replace(/\/$/, "")}/api/v1/orders`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(accessToken ? { "Authorization": `Bearer ${accessToken}` } : {})
+      },
       body: JSON.stringify(orderPayload),
     });
 
+    console.log(`[Proxy] Backend responded with status: ${res.status}`);
     const data = await res.json().catch(() => ({}));
+    console.log(`[Proxy] Backend data:`, JSON.stringify(data));
     if (!res.ok) {
       return NextResponse.json(
         { error: (data as { detail?: string })?.detail ?? "Ошибка создания заказа" },

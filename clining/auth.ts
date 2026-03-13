@@ -79,19 +79,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? [
-          Google({
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-          }),
-        ]
+        Google({
+          clientId: process.env.GOOGLE_CLIENT_ID!,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        }),
+      ]
       : []),
     ...(process.env.YANDEX_CLIENT_ID && process.env.YANDEX_CLIENT_SECRET
       ? [
-          Yandex({
-            clientId: process.env.YANDEX_CLIENT_ID!,
-            clientSecret: process.env.YANDEX_CLIENT_SECRET!,
-          }),
-        ]
+        Yandex({
+          clientId: process.env.YANDEX_CLIENT_ID!,
+          clientSecret: process.env.YANDEX_CLIENT_SECRET!,
+        }),
+      ]
       : []),
     Credentials({
       credentials: {
@@ -130,13 +130,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               body: JSON.stringify({ email, password }),
             });
             if (!res.ok) return null;
-            const user = await res.json();
+            const data = await res.json();
             return {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              role: user.role,
-              image: user.avatar,
+              id: data.user.id,
+              email: data.user.email,
+              name: data.user.name,
+              role: data.user.role,
+              image: data.user.avatar,
+              accessToken: data.token.access_token,
             };
           } catch {
             return null;
@@ -185,6 +186,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = (user as { id?: unknown }).id;
         token.role = (user as { role?: string | null }).role;
         token.picture = (user as { image?: string | null }).image ?? null;
+        token.accessToken = (user as any).accessToken;
       }
       return token;
     },
@@ -193,6 +195,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.role = (token.role as string) || "client";
         session.user.image = token.picture as string | null;
+        (session as any).accessToken = token.accessToken;
       }
       return session;
     },
@@ -202,8 +205,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   // Не использовать AUTH_URL если там placeholder (ваш_сервер/ВАШ_СЕРВЕР)
   ...(process.env.AUTH_URL &&
     !/ваш_сервер|ВАШ_СЕРВЕР|xn--/i.test(process.env.AUTH_URL) && {
-      url: process.env.AUTH_URL.replace(/\/$/, ""),
-    }),
+    url: process.env.AUTH_URL.replace(/\/$/, ""),
+  }),
   pages: {
     signIn: "/login",
   },

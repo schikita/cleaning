@@ -19,7 +19,7 @@ class OrderBase(BaseModel):
 
 
 class OrderCreate(OrderBase):
-    client_id: str
+    client_id: Optional[str] = None
 
 
 class OrderUpdate(BaseModel):
@@ -37,13 +37,9 @@ class OrderUpdate(BaseModel):
 class OrderResponse(OrderBase):
     id: str
     client_id: str
-<<<<<<< HEAD
-    client: Optional[UserPublic] = None
-=======
     client: Optional[UserResponse] = None
     performer_id: Optional[str] = None
     performer: Optional[UserResponse] = None
->>>>>>> 3e5d9bfdb5624234e7728ac66e0630680853fe46
     responses_count: int = 0
     status: str = "open"
     payment_status: str = "pending"
